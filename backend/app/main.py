@@ -1,6 +1,13 @@
 import logging
+import mimetypes
 import os
 from contextlib import asynccontextmanager
+
+# Fix Windows MIME type registration for ESM JS modules
+mimetypes.add_type("application/javascript", ".js")
+mimetypes.add_type("text/css", ".css")
+mimetypes.add_type("image/svg+xml", ".svg")
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
