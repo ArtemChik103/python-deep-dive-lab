@@ -70,16 +70,16 @@ my_dog.learn_trick("сидеть")
     Банковский счет с контролем баланса и историей операций.
     \"\"\"
     def __init__(self, owner: str, initial_balance: float = 0.0):
-        # TODO: Проверьте initial_balance >= 0
-        # TODO: Сохраните self.owner, self.balance, self.transactions = []
+        # TODO: Проверьте, что начальный баланс неотрицательный
+        # TODO: Сохраните имя владельца, баланс и подготовьте пустой список транзакций
         pass
 
     def deposit(self, amount: float) -> float:
-        # TODO: Проверьте amount > 0, пополните баланс, зафиксируйте транзакцию
+        # TODO: Проверьте положительность суммы, увеличьте баланс и зафиксируйте транзакцию
         pass
 
     def withdraw(self, amount: float) -> float:
-        # TODO: Проверьте amount > 0 и amount <= balance, спишите баланс, зафиксируйте транзакцию
+        # TODO: Проверьте корректность суммы и достаточность средств, уменьшите баланс и зафиксируйте транзакцию
         pass
 """,
             "hints": [
