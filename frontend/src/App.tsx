@@ -264,21 +264,25 @@ export function App() {
 
   // Run Code (Ctrl+Enter)
   const handleRunCode = async () => {
-    const tab = tabs.find((t) => t.id === activeTabId);
-    if (!tab) return;
+    let tab = tabs.find((t) => t.id === activeTabId);
+    if (!tab && tabs.length > 0) {
+      tab = tabs[0];
+    }
+    const codeToRun = tab ? tab.content : (currentLesson?.starter_code || '');
+    if (!codeToRun && !tab) return;
 
     setIsRunning(true);
     setActiveConsoleTab('output');
     if (isMobile) setMobileActiveView('console');
 
     try {
-      if (!tab.isLessonStarter && tab.isDirty) {
+      if (tab && !tab.isLessonStarter && tab.isDirty) {
         await saveFile(tab.path, tab.content);
-        setTabs((prev) => prev.map((t) => (t.id === tab.id ? { ...t, isDirty: false } : t)));
+        setTabs((prev) => prev.map((t) => (t.id === tab!.id ? { ...t, isDirty: false } : t)));
       }
 
-      const res = tab.isLessonStarter
-        ? await executeCode(tab.content)
+      const res = (!tab || tab.isLessonStarter)
+        ? await executeCode(codeToRun)
         : await executeFile(tab.path);
 
       setExecResult(res);

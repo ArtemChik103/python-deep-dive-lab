@@ -6,6 +6,7 @@ test.describe('Python Deep Dive Lab E2E Suite', () => {
     await page.goto('/');
     // Wait for the app to hydrate and fetch modules
     await page.waitForSelector('text=PyDeep');
+    await page.waitForSelector('h1');
   });
 
   test('1. Should render the application with navigation, curriculum, and first lesson', async ({ page }) => {

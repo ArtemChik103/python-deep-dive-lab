@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import {
   Terminal,
   CheckCircle2,
@@ -30,39 +30,53 @@ export const ConsolePanel: React.FC<ConsolePanelProps> = ({
   onClearOutput,
 }) => {
   const plotsCount = execResult?.plots?.length || 0;
+  const activeTabRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    activeTabRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+      inline: 'nearest',
+    });
+  }, [activeTab]);
 
   return (
     <div className="flex flex-col h-full bg-[#141416] border-t border-zinc-800 select-none overflow-hidden">
       {/* Header Tabs */}
-      <div className="h-9 bg-zinc-950 border-b border-zinc-800 flex items-center justify-between px-3 shrink-0">
-        <div className="flex items-center gap-1">
+      <div className="h-9 bg-zinc-950 border-b border-zinc-800 flex items-center justify-between shrink-0 relative overflow-hidden">
+        {/* Scrollable tabs list */}
+        <div className="flex-1 flex items-center gap-1 overflow-x-auto no-scrollbar px-2 min-w-0 touch-pan-x h-full">
           <button
+            ref={activeTab === 'output' ? activeTabRef : null}
             onClick={() => setActiveTab('output')}
-            className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded-md font-medium transition-colors ${
+            className={`shrink-0 flex items-center gap-1.5 px-2.5 sm:px-3 py-1 text-xs rounded-md font-medium whitespace-nowrap transition-colors cursor-pointer ${
               activeTab === 'output'
                 ? 'bg-zinc-800 text-zinc-100'
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            <Terminal className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Консоль вывода</span>
+            <Terminal className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            <span className="sm:hidden">Вывод</span>
+            <span className="hidden sm:inline">Консоль вывода</span>
             {execResult && (
-              <span className="text-[10px] text-zinc-500 font-mono">
-                ({execResult.execution_time_ms}ms)
+              <span className="text-[10px] text-zinc-400 font-mono bg-zinc-900 px-1 rounded border border-zinc-700/60">
+                {execResult.execution_time_ms}ms
               </span>
             )}
           </button>
 
           <button
+            ref={activeTab === 'tests' ? activeTabRef : null}
             onClick={() => setActiveTab('tests')}
-            className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded-md font-medium transition-colors ${
+            className={`shrink-0 flex items-center gap-1.5 px-2.5 sm:px-3 py-1 text-xs rounded-md font-medium whitespace-nowrap transition-colors cursor-pointer ${
               activeTab === 'tests'
                 ? 'bg-zinc-800 text-zinc-100'
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            <CheckCircle2 className="w-3.5 h-3.5 text-sky-400" />
-            <span>Результаты тестов</span>
+            <CheckCircle2 className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+            <span className="sm:hidden">Тесты</span>
+            <span className="hidden sm:inline">Результаты тестов</span>
             {evalResult && (
               <span
                 className={`text-[10px] font-mono px-1.5 py-0.2 rounded font-semibold ${
@@ -77,15 +91,17 @@ export const ConsolePanel: React.FC<ConsolePanelProps> = ({
           </button>
 
           <button
+            ref={activeTab === 'plots' ? activeTabRef : null}
             onClick={() => setActiveTab('plots')}
-            className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded-md font-medium transition-colors ${
+            className={`shrink-0 flex items-center gap-1.5 px-2.5 sm:px-3 py-1 text-xs rounded-md font-medium whitespace-nowrap transition-colors cursor-pointer ${
               activeTab === 'plots'
                 ? 'bg-zinc-800 text-zinc-100'
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            <LineChart className="w-3.5 h-3.5 text-amber-400" />
-            <span>Графика (Plots)</span>
+            <LineChart className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span className="sm:hidden">Графика</span>
+            <span className="hidden sm:inline">Графика (Plots)</span>
             {plotsCount > 0 && (
               <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-950 text-amber-300 border border-amber-800 font-semibold">
                 {plotsCount}
@@ -94,26 +110,30 @@ export const ConsolePanel: React.FC<ConsolePanelProps> = ({
           </button>
 
           <button
+            ref={activeTab === 'pip' ? activeTabRef : null}
             onClick={() => setActiveTab('pip')}
-            className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded-md font-medium transition-colors ${
+            className={`shrink-0 flex items-center gap-1.5 px-2.5 sm:px-3 py-1 text-xs rounded-md font-medium whitespace-nowrap transition-colors cursor-pointer ${
               activeTab === 'pip'
                 ? 'bg-zinc-800 text-zinc-100'
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            <Package className="w-3.5 h-3.5 text-indigo-400" />
-            <span>Pip Терминал</span>
+            <Package className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+            <span className="sm:hidden">Pip</span>
+            <span className="hidden sm:inline">Pip Терминал</span>
           </button>
         </div>
 
-        {/* Clear output button */}
-        <button
-          onClick={onClearOutput}
-          className="p-1 hover:bg-zinc-800 text-zinc-500 hover:text-zinc-300 rounded transition-colors"
-          title="Очистить вывод"
-        >
-          <Trash2 className="w-3.5 h-3.5" />
-        </button>
+        {/* Pinned Clear output button */}
+        <div className="shrink-0 flex items-center px-2 h-full bg-zinc-950 border-l border-zinc-800 z-10 shadow-[-4px_0_6px_-1px_rgba(0,0,0,0.5)]">
+          <button
+            onClick={onClearOutput}
+            className="p-1 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 rounded transition-colors cursor-pointer"
+            title="Очистить вывод"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
 
       {/* Main Tab Content */}

@@ -56,11 +56,11 @@ test.describe('Mobile Viewport UX Suite (390x844)', () => {
     await expect(page.locator('.monaco-editor')).toBeVisible();
 
     // Switch to Console tab
-    await page.click('button:has-text("Консоль / Тесты")');
-    await expect(page.locator('text=Консоль вывода')).toBeVisible();
+    await page.click('button:has-text("Консоль")');
+    await expect(page.locator('button:has-text("Вывод")')).toBeVisible();
 
     // Switch back to Theory tab
-    await page.click('button:has-text("Теория & Задание")');
+    await page.click('button:has-text("Теория")');
     await expect(page.locator('h1:has-text("0.1. Переменные, вычисления и вывод")')).toBeVisible();
   });
 
@@ -71,5 +71,32 @@ test.describe('Mobile Viewport UX Suite (390x844)', () => {
     // Should automatically switch to console view and display execution results
     await expect(page.locator('text=Время:')).toBeVisible();
     await expect(page.locator('text=Код возврата:')).toBeVisible();
+  });
+
+  test('5. Should allow reaching Plots and Pip Terminal tabs on mobile even after running code and tests', async ({ page }) => {
+    // Execute code to populate execution badge
+    await page.click('button:has-text("Запустить")');
+    await expect(page.locator('text=Время:')).toBeVisible();
+
+    // Execute tests to populate test results badge
+    await page.click('button:has-text("Тесты")');
+    await expect(page.locator('text=Успешно:')).toBeVisible();
+
+    // Ensure all 4 tabs in console header are accessible and interactive on mobile
+    const plotsTab = page.locator('button:has-text("Графика")');
+    await expect(plotsTab).toBeVisible();
+    await plotsTab.click();
+    await expect(page.locator('text=Графики не обнаружены')).toBeVisible();
+
+    const pipTab = page.locator('button:has-text("Pip")').last();
+    await expect(pipTab).toBeVisible();
+    await pipTab.click();
+    await expect(page.locator('text=Журнал операций менеджера пакетов Pip пуст')).toBeVisible();
+
+    // Switch back to Вывод
+    const outputTab = page.locator('button:has-text("Вывод")');
+    await expect(outputTab).toBeVisible();
+    await outputTab.click();
+    await expect(page.locator('text=Время:')).toBeVisible();
   });
 });

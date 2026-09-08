@@ -40,7 +40,7 @@ export const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
     <div className="flex flex-col h-full bg-[#1e1e1e] overflow-hidden select-none">
       {/* Tabs Header Bar */}
       <div className="h-9 bg-zinc-950 border-b border-zinc-800 flex items-center justify-between px-2 shrink-0">
-        <div className="flex items-center gap-1 overflow-x-auto h-full max-w-full">
+        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar h-full max-w-full touch-pan-x">
           {tabs.map((tab) => {
             const isActive = tab.id === activeTabId;
 
@@ -48,7 +48,7 @@ export const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
               <div
                 key={tab.id}
                 onClick={() => onSelectTab(tab.id)}
-                className={`group flex items-center gap-2 h-full px-3 text-xs border-r border-zinc-800 cursor-pointer transition-colors ${
+                className={`shrink-0 group flex items-center gap-2 h-full px-3 text-xs border-r border-zinc-800 cursor-pointer transition-colors ${
                   isActive
                     ? 'bg-[#1e1e1e] text-sky-400 border-t-2 border-t-sky-500 font-medium'
                     : 'bg-zinc-950 text-zinc-400 hover:bg-zinc-900 hover:text-zinc-300'
