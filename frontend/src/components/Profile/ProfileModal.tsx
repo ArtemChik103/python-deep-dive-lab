@@ -118,6 +118,8 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
 
     if (!matchesSearch) return false;
 
+    if (filterCategory === 'independent') return item.stat?.completed && !item.stat?.solutionRevealed;
+    if (filterCategory === 'revealed') return item.stat?.completed && item.stat?.solutionRevealed;
     if (filterCategory === 'completed') return item.stat?.completed;
     if (filterCategory === 'in_progress') return item.stat && !item.stat.completed;
     if (filterCategory === 'unsolved') return !item.stat;
@@ -223,7 +225,10 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
               <div>
                 <div className="text-[10px] text-zinc-400">Точность тестов</div>
                 <div className="text-sm font-bold text-emerald-400 font-mono">
-                  {overview.overallAccuracy}%
+                  {overview.cleanAccuracy}%
+                </div>
+                <div className="text-[9px] text-zinc-500">
+                  {overview.revealedLessonsCount > 0 ? 'честная точность' : 'самостоятельно'}
                 </div>
               </div>
             </div>
@@ -233,9 +238,12 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                 <CheckCircle2 className="w-4 h-4 text-sky-400" />
               </div>
               <div>
-                <div className="text-[10px] text-zinc-400">Тестов пройдено</div>
+                <div className="text-[10px] text-zinc-400">Решено уроков</div>
                 <div className="text-sm font-bold text-sky-400 font-mono">
-                  {overview.totalTestsPassed} / {overview.totalTestsRun}
+                  {overview.independentLessonsCount} / {overview.totalLessons}
+                </div>
+                <div className="text-[9px] text-amber-400/90 font-mono">
+                  {overview.revealedLessonsCount > 0 ? `+ ${overview.revealedLessonsCount} с эталоном` : '100% честный код'}
                 </div>
               </div>
             </div>
@@ -335,20 +343,32 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                     Все ({allLessons.length})
                   </button>
                   <button
-                    onClick={() => setFilterCategory('completed')}
+                    onClick={() => setFilterCategory('independent')}
                     className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
-                      filterCategory === 'completed'
+                      filterCategory === 'independent'
                         ? 'bg-emerald-950 text-emerald-300 border border-emerald-800 font-medium'
                         : 'text-zinc-400 hover:text-zinc-200'
                     }`}
                   >
-                    Решено ({overview.completedLessons})
+                    Самостоятельно ({overview.independentLessonsCount})
                   </button>
+                  {overview.revealedLessonsCount > 0 && (
+                    <button
+                      onClick={() => setFilterCategory('revealed')}
+                      className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
+                        filterCategory === 'revealed'
+                          ? 'bg-amber-950 text-amber-300 border border-amber-800 font-medium'
+                          : 'text-zinc-400 hover:text-zinc-200'
+                      }`}
+                    >
+                      С эталоном ({overview.revealedLessonsCount})
+                    </button>
+                  )}
                   <button
                     onClick={() => setFilterCategory('in_progress')}
                     className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
                       filterCategory === 'in_progress'
-                        ? 'bg-amber-950 text-amber-300 border border-amber-800 font-medium'
+                        ? 'bg-indigo-950 text-indigo-300 border border-indigo-800 font-medium'
                         : 'text-zinc-400 hover:text-zinc-200'
                     }`}
                   >
@@ -412,8 +432,10 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                             <div className="text-right">
                               <div
                                 className={`text-xs font-bold font-mono px-2 py-0.5 rounded-md inline-block ${
-                                  accuracy === 100
-                                    ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                                  item.stat?.completed
+                                    ? item.stat.solutionRevealed
+                                      ? 'bg-amber-950/80 text-amber-300 border border-amber-800'
+                                      : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
                                     : accuracy >= 50
                                     ? 'bg-amber-950 text-amber-300 border border-amber-800'
                                     : 'bg-rose-950 text-rose-300 border border-rose-800'
@@ -422,7 +444,11 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                                 {accuracy}% ({passed}/{total} тестов)
                               </div>
                               <div className="text-[9px] text-zinc-500 mt-0.5">
-                                {item.stat?.completed ? 'Все тесты пройдены' : 'Частичный успех'}
+                                {item.stat?.completed
+                                  ? item.stat.solutionRevealed
+                                    ? '📖 Решение открыто (ознакомление)'
+                                    : '🌟 Все тесты пройдены'
+                                  : 'Частичный успех'}
                               </div>
                             </div>
                           ) : (

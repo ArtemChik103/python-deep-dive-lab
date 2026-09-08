@@ -261,9 +261,9 @@ export const TheoryPane: React.FC<TheoryPaneProps> = ({
         {solution ? (
           <div className="space-y-3 animate-in fade-in duration-200">
             <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-              <span className="text-emerald-400 font-medium flex items-center gap-1">
-                <Check className="w-3.5 h-3.5" />
-                Решение открыто
+              <span className="text-amber-400 font-medium flex items-center gap-1">
+                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Решение открыто (режим ознакомления)</span>
               </span>
               <div className="flex items-center gap-1.5">
                 <button
@@ -290,6 +290,9 @@ export const TheoryPane: React.FC<TheoryPaneProps> = ({
           <div className="p-3 bg-rose-950/40 border border-rose-800/60 rounded-md text-xs space-y-2.5">
             <p className="text-rose-200 font-medium">
               Вы уверены? Попробуйте сначала воспользоваться подсказками или решить задачу самостоятельно.
+            </p>
+            <p className="text-[11px] text-rose-300/80">
+              ⚠️ Открытие эталонного решения переводит урок в режим «Ознакомление»: он не будет засчитан в достижения за честное решение и точность с 1-й попытки.
             </p>
             <div className="flex items-center gap-2">
               <button

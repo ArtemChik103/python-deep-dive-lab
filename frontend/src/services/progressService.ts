@@ -216,6 +216,7 @@ export interface RecordAttemptParams {
   executionTimeMs: number;
   hintsUsed: number;
   solutionRevealed: boolean;
+  solutionCopied?: boolean;
 }
 
 export const recordTestAttempt = (params: RecordAttemptParams): {
@@ -231,6 +232,9 @@ export const recordTestAttempt = (params: RecordAttemptParams): {
   const totalTests = Math.max(existing?.totalTestsCount || 0, params.totalTests);
   const accuracy = totalTests > 0 ? Math.round((bestPassed / totalTests) * 100) : 0;
   const completed = Boolean(existing?.completed || params.allPassed);
+  const solutionRevealed = Boolean(existing?.solutionRevealed || params.solutionRevealed);
+  const solutionCopied = Boolean(existing?.solutionCopied || params.solutionCopied);
+  const solvedIndependently = completed && !solutionRevealed;
   const bestTime = existing?.bestExecutionTimeMs
     ? Math.min(existing.bestExecutionTimeMs, params.executionTimeMs)
     : params.executionTimeMs;
@@ -241,13 +245,15 @@ export const recordTestAttempt = (params: RecordAttemptParams): {
     lessonTitle: params.lessonTitle,
     difficulty: params.difficulty,
     completed,
+    solvedIndependently,
     attemptsCount: attempts,
     bestPassedCount: bestPassed,
     totalTestsCount: totalTests,
     accuracyPercent: accuracy,
     bestExecutionTimeMs: bestTime,
     hintsUsedCount: Math.max(existing?.hintsUsedCount || 0, params.hintsUsed),
-    solutionRevealed: Boolean(existing?.solutionRevealed || params.solutionRevealed),
+    solutionRevealed,
+    solutionCopied,
     lastSolvedAt: params.allPassed ? new Date().toISOString() : existing?.lastSolvedAt,
   };
 
@@ -273,17 +279,37 @@ export const evaluateAllAchievements = (
   const statsList = Object.values(statsMap);
   const totalRuns = getTotalRunCount();
 
-  const solvedLessons = statsList.filter((s) => s.completed);
-  const perfectFirstTry = statsList.filter((s) => s.completed && s.attemptsCount === 1 && s.accuracyPercent === 100);
-  const perfectScoreCount = statsList.filter((s) => s.completed && s.accuracyPercent === 100).length;
-  const solvedNoHints = statsList.some((s) => s.completed && s.hintsUsedCount === 0 && !s.solutionRevealed);
-  const solvedAfterStruggle = statsList.some((s) => s.completed && s.attemptsCount >= 3);
-  const fastExecution = statsList.some((s) => s.completed && s.bestExecutionTimeMs > 0 && s.bestExecutionTimeMs < 100);
+  // Fair evaluations: achievements require solving INDEPENDENTLY (!s.solutionRevealed)
+  const independentlySolved = statsList.filter((s) => s.completed && !s.solutionRevealed);
+  const perfectFirstTry = statsList.filter(
+    (s) => s.completed && !s.solutionRevealed && s.attemptsCount === 1 && s.accuracyPercent === 100
+  );
+  const perfectScoreCount = statsList.filter(
+    (s) => s.completed && !s.solutionRevealed && s.accuracyPercent === 100
+  ).length;
+  const solvedNoHints = statsList.some(
+    (s) => s.completed && !s.solutionRevealed && s.hintsUsedCount === 0
+  );
+  const solvedAfterStruggle = statsList.some(
+    (s) => s.completed && !s.solutionRevealed && s.attemptsCount >= 3
+  );
+  const fastExecution = statsList.some(
+    (s) => s.completed && !s.solutionRevealed && s.bestExecutionTimeMs > 0 && s.bestExecutionTimeMs < 100
+  );
 
-  const m0Solved = statsList.filter((s) => s.lessonId.startsWith('m0_') && s.completed).length;
-  const m1Solved = statsList.filter((s) => s.lessonId.startsWith('m1_') && s.completed).length;
-  const hasAdvancedSolved = statsList.some(
-    (s) => s.completed && !s.lessonId.startsWith('m0_') && !s.lessonId.startsWith('m1_') && !s.lessonId.startsWith('m2_')
+  const m0SolvedIndep = statsList.filter(
+    (s) => s.lessonId.startsWith('m0_') && s.completed && !s.solutionRevealed
+  ).length;
+  const m1SolvedIndep = statsList.filter(
+    (s) => s.lessonId.startsWith('m1_') && s.completed && !s.solutionRevealed
+  ).length;
+  const hasAdvancedSolvedIndep = statsList.some(
+    (s) =>
+      s.completed &&
+      !s.solutionRevealed &&
+      !s.lessonId.startsWith('m0_') &&
+      !s.lessonId.startsWith('m1_') &&
+      !s.lessonId.startsWith('m2_')
   );
 
   const updatedAchievements = currentAchievements.map((ach) => {
@@ -299,8 +325,8 @@ export const evaluateAllAchievements = (
         break;
 
       case 'first_lesson':
-        progress = solvedLessons.length > 0 ? 100 : 0;
-        shouldUnlock = solvedLessons.length > 0;
+        progress = independentlySolved.length > 0 ? 100 : 0;
+        shouldUnlock = independentlySolved.length > 0;
         break;
 
       case 'sharp_shooter':
@@ -314,13 +340,13 @@ export const evaluateAllAchievements = (
         break;
 
       case 'module0_complete':
-        progress = Math.min(100, Math.round((m0Solved / 4) * 100));
-        shouldUnlock = m0Solved >= 4;
+        progress = Math.min(100, Math.round((m0SolvedIndep / 4) * 100));
+        shouldUnlock = m0SolvedIndep >= 4;
         break;
 
       case 'module1_complete':
-        progress = Math.min(100, Math.round((m1Solved / 4) * 100));
-        shouldUnlock = m1Solved >= 4;
+        progress = Math.min(100, Math.round((m1SolvedIndep / 4) * 100));
+        shouldUnlock = m1SolvedIndep >= 4;
         break;
 
       case 'speed_demon':
@@ -348,8 +374,8 @@ export const evaluateAllAchievements = (
         break;
 
       case 'cpython_voyager':
-        progress = hasAdvancedSolved ? 100 : 0;
-        shouldUnlock = hasAdvancedSolved;
+        progress = hasAdvancedSolvedIndep ? 100 : 0;
+        shouldUnlock = hasAdvancedSolvedIndep;
         break;
 
       case 'persistent_coder':
@@ -384,15 +410,23 @@ export const computeOverview = (
   const statsList = Object.values(statsMap);
 
   const completedLessons = statsList.filter((s) => s.completed).length;
+  const independentLessonsCount = statsList.filter((s) => s.completed && !s.solutionRevealed).length;
+  const revealedLessonsCount = statsList.filter((s) => s.completed && s.solutionRevealed).length;
 
   let totalTestsRun = 0;
   let totalTestsPassed = 0;
+  let cleanTestsRun = 0;
+  let cleanTestsPassed = 0;
   let totalTimeMs = 0;
   let timedLessonsCount = 0;
 
   statsList.forEach((s) => {
     totalTestsRun += s.totalTestsCount;
     totalTestsPassed += s.bestPassedCount;
+    if (!s.solutionRevealed) {
+      cleanTestsRun += s.totalTestsCount;
+      cleanTestsPassed += s.bestPassedCount;
+    }
     if (s.bestExecutionTimeMs > 0) {
       totalTimeMs += s.bestExecutionTimeMs;
       timedLessonsCount++;
@@ -402,15 +436,28 @@ export const computeOverview = (
   const overallAccuracy =
     totalTestsRun > 0 ? Math.round((totalTestsPassed / totalTestsRun) * 100) : 0;
 
+  const cleanAccuracy =
+    cleanTestsRun > 0
+      ? Math.round((cleanTestsPassed / cleanTestsRun) * 100)
+      : independentLessonsCount > 0
+      ? overallAccuracy
+      : overallAccuracy;
+
   const averageExecutionTimeMs =
     timedLessonsCount > 0 ? Math.round(totalTimeMs / timedLessonsCount) : 0;
 
   const unlockedAchievementsCount = achievements.filter((a) => a.unlocked).length;
 
+  // Fair XP formula:
+  // 100 XP for each independently solved lesson
+  // 15 XP for reference solution inspection (audit/study mode)
+  // 150 XP per unlocked achievement
+  // Accuracy bonus
   const xp =
-    completedLessons * 100 +
+    independentLessonsCount * 100 +
+    revealedLessonsCount * 15 +
     unlockedAchievementsCount * 150 +
-    Math.round(overallAccuracy * 2);
+    Math.round(cleanAccuracy * 2);
 
   let level = 1;
   let levelTitle = 'Новичок в Python';
@@ -437,9 +484,12 @@ export const computeOverview = (
   return {
     totalLessons: totalLessons || 30,
     completedLessons,
+    independentLessonsCount,
+    revealedLessonsCount,
     totalTestsRun,
     totalTestsPassed,
     overallAccuracy,
+    cleanAccuracy,
     totalCodeRuns: getTotalRunCount(),
     averageExecutionTimeMs,
     unlockedAchievementsCount,

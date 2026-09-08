@@ -75,6 +75,8 @@ export function App() {
   const [currentLesson, setCurrentLesson] = useState<LessonDetail | null>(null);
   const [unlockedHints, setUnlockedHints] = useState<HintItem[]>([]);
   const [currentSolution, setCurrentSolution] = useState<string | null>(null);
+  const [revealedSolutionLessons, setRevealedSolutionLessons] = useState<Set<string>>(new Set());
+  const [copiedSolutionLessons, setCopiedSolutionLessons] = useState<Set<string>>(new Set());
   const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(() => {
     try {
       const saved = localStorage.getItem('pydeep_completed_lessons');
@@ -349,6 +351,17 @@ export function App() {
       setEvalResult(res);
 
       if (currentLesson) {
+        const isSolutionRevealed = Boolean(
+          currentSolution ||
+          revealedSolutionLessons.has(selectedLessonId) ||
+          copiedSolutionLessons.has(selectedLessonId) ||
+          lessonStatsMap[selectedLessonId]?.solutionRevealed
+        );
+        const isSolutionCopied = Boolean(
+          copiedSolutionLessons.has(selectedLessonId) ||
+          lessonStatsMap[selectedLessonId]?.solutionCopied
+        );
+
         const { updatedStats, updatedAchievements } = recordTestAttempt({
           lessonId: currentLesson.id,
           lessonTitle: currentLesson.title,
@@ -359,19 +372,22 @@ export function App() {
           allPassed: res.all_passed,
           executionTimeMs: res.execution_time_ms,
           hintsUsed: unlockedHints.length,
-          solutionRevealed: Boolean(currentSolution),
+          solutionRevealed: isSolutionRevealed,
+          solutionCopied: isSolutionCopied,
         });
         setLessonStatsMap(updatedStats);
         setAchievements(updatedAchievements);
-      }
 
-      if (res.all_passed) {
-        confetti({
-          particleCount: 80,
-          spread: 70,
-          origin: { y: 0.6 },
-        });
-        setCompletedLessonIds((prev) => new Set([...prev, selectedLessonId]));
+        if (res.all_passed) {
+          if (!isSolutionRevealed) {
+            confetti({
+              particleCount: 80,
+              spread: 70,
+              origin: { y: 0.6 },
+            });
+          }
+          setCompletedLessonIds((prev) => new Set([...prev, selectedLessonId]));
+        }
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -428,6 +444,7 @@ export function App() {
     try {
       const sol = await fetchSolution(selectedLessonId);
       setCurrentSolution(sol.solution);
+      setRevealedSolutionLessons((prev) => new Set([...prev, selectedLessonId]));
     } catch (err) {
       alert(`Ошибка получения решения: ${err}`);
     } finally {
@@ -437,7 +454,9 @@ export function App() {
 
   // Apply solution to editor
   const handleApplySolutionToEditor = (solutionCode: string) => {
-    if (!activeTabId) return;
+    if (!activeTabId || !selectedLessonId) return;
+    setRevealedSolutionLessons((prev) => new Set([...prev, selectedLessonId]));
+    setCopiedSolutionLessons((prev) => new Set([...prev, selectedLessonId]));
     handleChangeContent(activeTabId, solutionCode);
     if (isMobile) setMobileActiveView('editor');
   };
@@ -717,6 +736,11 @@ export function App() {
                       setEvalResult(null);
                       setPipLogs('');
                     }}
+                    isSolutionRevealed={Boolean(
+                      currentSolution ||
+                      (selectedLessonId && revealedSolutionLessons.has(selectedLessonId)) ||
+                      (selectedLessonId && lessonStatsMap[selectedLessonId]?.solutionRevealed)
+                    )}
                   />
                 </div>
               )}
@@ -774,6 +798,11 @@ export function App() {
                     setEvalResult(null);
                     setPipLogs('');
                   }}
+                  isSolutionRevealed={Boolean(
+                    currentSolution ||
+                    (selectedLessonId && revealedSolutionLessons.has(selectedLessonId)) ||
+                    (selectedLessonId && lessonStatsMap[selectedLessonId]?.solutionRevealed)
+                  )}
                 />
               </div>
             </>

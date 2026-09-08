@@ -112,6 +112,7 @@ export interface LessonSolutionStats {
   lessonTitle: string;
   difficulty: Difficulty;
   completed: boolean;
+  solvedIndependently: boolean;
   attemptsCount: number;
   bestPassedCount: number;
   totalTestsCount: number;
@@ -119,6 +120,7 @@ export interface LessonSolutionStats {
   bestExecutionTimeMs: number;
   hintsUsedCount: number;
   solutionRevealed: boolean;
+  solutionCopied?: boolean;
   lastSolvedAt?: string;
 }
 
@@ -137,9 +139,12 @@ export interface Achievement {
 export interface UserProgressOverview {
   totalLessons: number;
   completedLessons: number;
+  independentLessonsCount: number;
+  revealedLessonsCount: number;
   totalTestsRun: number;
   totalTestsPassed: number;
   overallAccuracy: number; // 0 - 100%
+  cleanAccuracy: number; // 0 - 100% (only independent solutions)
   totalCodeRuns: number;
   averageExecutionTimeMs: number;
   unlockedAchievementsCount: number;

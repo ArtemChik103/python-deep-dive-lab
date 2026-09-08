@@ -19,6 +19,7 @@ interface ConsolePanelProps {
   evalResult: EvaluationResponse | null;
   pipLogs: string;
   onClearOutput: () => void;
+  isSolutionRevealed?: boolean;
 }
 
 export const ConsolePanel: React.FC<ConsolePanelProps> = ({
@@ -28,6 +29,7 @@ export const ConsolePanel: React.FC<ConsolePanelProps> = ({
   evalResult,
   pipLogs,
   onClearOutput,
+  isSolutionRevealed = false,
 }) => {
   const plotsCount = execResult?.plots?.length || 0;
   const activeTabRef = useRef<HTMLButtonElement | null>(null);
@@ -202,24 +204,37 @@ export const ConsolePanel: React.FC<ConsolePanelProps> = ({
                 <div
                   className={`p-3 rounded-lg border flex items-center justify-between ${
                     evalResult.all_passed
-                      ? 'bg-emerald-950/40 border-emerald-700/60 text-emerald-200'
+                      ? isSolutionRevealed
+                        ? 'bg-amber-950/40 border-amber-700/60 text-amber-200'
+                        : 'bg-emerald-950/40 border-emerald-700/60 text-emerald-200'
                       : 'bg-rose-950/40 border-rose-700/60 text-rose-200'
                   }`}
                 >
                   <div className="flex items-center gap-2">
                     {evalResult.all_passed ? (
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                      isSolutionRevealed ? (
+                        <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />
+                      ) : (
+                        <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                      )
                     ) : (
                       <XCircle className="w-5 h-5 text-rose-400 shrink-0" />
                     )}
                     <div>
                       <div className="font-bold text-sm">
                         {evalResult.all_passed
-                          ? '🎉 Поздравляем! Все тесты успешно пройдены!'
+                          ? isSolutionRevealed
+                            ? '📖 Пройдено с эталонным решением (режим ознакомления)'
+                            : '🎉 Поздравляем! Все тесты успешно пройдены!'
                           : '⚠️ Решение не прошло проверку'}
                       </div>
                       <div className="text-[11px] opacity-80">
                         Успешно: {evalResult.passed_tests} из {evalResult.total_tests} тестов
+                        {isSolutionRevealed && evalResult.all_passed && (
+                          <span className="ml-1 text-amber-300 font-medium">
+                            • Не идет в зачет честных ачивок
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
