@@ -42,8 +42,6 @@ def pydeep_test(name: str, expected: any = None):
             res["error"] = str(ae) or "Assertion failed"
             res["passed"] = False
         except Exception as e:
-            tb_lines = traceback.format_exception(type(e), e, e.__traceback__)
-            # Extract last relevant line of traceback
             res["error"] = f"{type(e).__name__}: {str(e)}"
             res["passed"] = False
         
@@ -53,17 +51,17 @@ def pydeep_test(name: str, expected: any = None):
     return decorator
 
 # ==== USER CODE BEGIN ====
-{user_code}
+__USER_CODE_PLACEHOLDER__
 # ==== USER CODE END ====
 
 # ==== TEST SUITE BEGIN ====
-{test_suite_code}
+__TEST_SUITE_PLACEHOLDER__
 # ==== TEST SUITE END ====
 
 # Output results
-print("\\n" + "{start_tag}")
+print("\\n" + "__START_TAG_PLACEHOLDER__")
 print(json.dumps(__PYDEEP_TEST_RESULTS__))
-print("{end_tag}")
+print("__END_TAG_PLACEHOLDER__")
 '''
 
 
@@ -76,11 +74,12 @@ async def evaluate_lesson_submission(
     Combines user code with test harness and runs in the sandbox environment.
     Parses and returns structured test case results.
     """
-    full_code = HARNESS_TEMPLATE.format(
-        user_code=user_code,
-        test_suite_code=test_suite_code,
-        start_tag=GRADER_DELIMITER_START,
-        end_tag=GRADER_DELIMITER_END
+    full_code = (
+        HARNESS_TEMPLATE
+        .replace("__USER_CODE_PLACEHOLDER__", user_code)
+        .replace("__TEST_SUITE_PLACEHOLDER__", test_suite_code)
+        .replace("__START_TAG_PLACEHOLDER__", GRADER_DELIMITER_START)
+        .replace("__END_TAG_PLACEHOLDER__", GRADER_DELIMITER_END)
     )
 
     exec_result = await run_code_or_file(code=full_code, timeout=timeout)
