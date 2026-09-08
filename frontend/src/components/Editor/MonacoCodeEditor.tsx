@@ -109,17 +109,21 @@ export const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
             onChange={(val) => onChangeContent(activeTab.id, val || '')}
             onMount={handleEditorMount}
             options={{
-              fontSize: 13,
+              fontSize: typeof window !== 'undefined' && window.innerWidth < 768 ? 12 : 13,
               fontFamily: "'Fira Code', 'Cascadia Code', Consolas, monospace",
               fontLigatures: true,
-              minimap: { enabled: true, scale: 0.75 },
+              minimap: {
+                enabled: typeof window !== 'undefined' && window.innerWidth >= 768,
+                scale: 0.75,
+              },
               scrollBeyondLastLine: false,
               automaticLayout: true,
               tabSize: 4,
               insertSpaces: true,
               wordWrap: 'on',
               lineNumbers: 'on',
-              folding: true,
+              lineNumbersMinChars: 3,
+              folding: typeof window !== 'undefined' && window.innerWidth >= 768,
               renderWhitespace: 'selection',
               renderLineHighlight: 'all',
               fixedOverflowWidgets: true,

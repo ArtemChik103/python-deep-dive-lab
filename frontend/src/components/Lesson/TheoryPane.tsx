@@ -13,6 +13,7 @@ import {
   ChevronUp,
   FileCode2,
 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import type { HintItem, LessonDetail } from '../../types';
 
 interface TheoryPaneProps {
@@ -88,47 +89,74 @@ export const TheoryPane: React.FC<TheoryPaneProps> = ({
       </div>
 
       {/* Theory Markdown Section */}
-      <div className="prose-dark text-xs space-y-3">
-        {lesson.theory_md.split('\n\n').map((block, idx) => {
-          if (block.startsWith('# ')) {
-            return (
-              <h2 key={idx} className="text-sm sm:text-base font-bold text-white border-b border-zinc-800 pb-1 mt-2">
-                {block.replace('# ', '')}
+      <div className="prose-dark text-xs space-y-3 leading-relaxed">
+        <ReactMarkdown
+          components={{
+            h1: ({ children }) => (
+              <h2 className="text-sm sm:text-base font-bold text-white border-b border-zinc-800 pb-1.5 mt-4 mb-2 tracking-tight">
+                {children}
               </h2>
-            );
-          }
-          if (block.startsWith('### ')) {
-            return (
-              <h3 key={idx} className="text-xs sm:text-sm font-semibold text-zinc-200 mt-2">
-                {block.replace('### ', '')}
+            ),
+            h2: ({ children }) => (
+              <h2 className="text-sm sm:text-base font-bold text-white border-b border-zinc-800 pb-1.5 mt-4 mb-2 tracking-tight">
+                {children}
+              </h2>
+            ),
+            h3: ({ children }) => (
+              <h3 className="text-xs sm:text-sm font-semibold text-sky-400 mt-3.5 mb-1.5">
+                {children}
               </h3>
-            );
-          }
-          if (block.startsWith('```')) {
-            const cleanCode = block.replace(/```[a-z]*\n?/g, '').trim();
-            return (
-              <pre key={idx} className="bg-zinc-950 p-2.5 sm:p-3 rounded-md border border-zinc-800 overflow-x-auto text-[11px] font-mono text-zinc-200">
-                <code>{cleanCode}</code>
-              </pre>
-            );
-          }
-          if (block.startsWith('- ') || block.startsWith('1. ')) {
-            return (
-              <ul key={idx} className="list-disc list-inside space-y-1 text-zinc-300 pl-1">
-                {block.split('\n').map((line, lIdx) => (
-                  <li key={lIdx} className="leading-relaxed">
-                    {line.replace(/^[-*]\s+|\d+\.\s+/, '')}
-                  </li>
-                ))}
+            ),
+            p: ({ children }) => (
+              <p className="text-xs text-zinc-300 leading-relaxed mb-2.5">
+                {children}
+              </p>
+            ),
+            ul: ({ children }) => (
+              <ul className="list-disc list-inside space-y-1 text-xs text-zinc-300 pl-1 mb-3">
+                {children}
               </ul>
-            );
-          }
-          return (
-            <p key={idx} className="text-zinc-300 leading-relaxed">
-              {block}
-            </p>
-          );
-        })}
+            ),
+            ol: ({ children }) => (
+              <ol className="list-decimal list-inside space-y-1 text-xs text-zinc-300 pl-1 mb-3">
+                {children}
+              </ol>
+            ),
+            li: ({ children }) => (
+              <li className="leading-relaxed text-zinc-300">
+                {children}
+              </li>
+            ),
+            code: ({ className, children, ...props }) => {
+              const isInline = !className && typeof children === 'string' && !children.includes('\n');
+              if (isInline) {
+                return (
+                  <code className="px-1.5 py-0.5 rounded bg-zinc-800 text-sky-300 font-mono text-[11px] border border-zinc-700/60" {...props}>
+                    {children}
+                  </code>
+                );
+              }
+              return (
+                <code className="text-[11px] font-mono text-zinc-200" {...props}>
+                  {children}
+                </code>
+              );
+            },
+            pre: ({ children }) => (
+              <pre className="bg-zinc-950 p-3 rounded-lg border border-zinc-800 overflow-x-auto my-3 text-[11px] font-mono text-zinc-200 shadow-inner">
+                {children}
+              </pre>
+            ),
+            strong: ({ children }) => (
+              <strong className="font-semibold text-zinc-100">
+                {children}
+              </strong>
+            ),
+            hr: () => <hr className="border-zinc-800 my-4" />,
+          }}
+        >
+          {lesson.theory_md}
+        </ReactMarkdown>
       </div>
 
       {/* Progressive Hints Drawer */}

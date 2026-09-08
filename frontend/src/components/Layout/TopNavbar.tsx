@@ -83,8 +83,8 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
             </div>
           </div>
 
-          {/* Mode Switcher */}
-          <div className="flex items-center bg-zinc-950 p-1 rounded-lg border border-zinc-800">
+          {/* Mode Switcher (Desktop only; on mobile accessible via drawer) */}
+          <div className="hidden md:flex items-center bg-zinc-950 p-1 rounded-lg border border-zinc-800">
             <button
               onClick={() => {
                 setMode('curriculum');
@@ -212,43 +212,43 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
 
       {/* Mobile View Switcher (Only visible on mobile screens < 768px) */}
       {isMobile && (
-        <div className="md:hidden flex items-center justify-around bg-zinc-950 border-t border-zinc-800 px-2 py-1.5">
+        <div className="md:hidden flex items-center bg-zinc-950 border-t border-zinc-800 p-1 gap-1">
           {mode === 'curriculum' && (
             <button
               onClick={() => setMobileActiveView('theory')}
-              className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-1 text-xs font-medium rounded-md transition-colors cursor-pointer text-center ${
                 mobileActiveView === 'theory'
-                  ? 'bg-sky-950 text-sky-400 border border-sky-800 font-semibold'
-                  : 'text-zinc-400 hover:text-zinc-200'
+                  ? 'bg-sky-950 text-sky-400 border border-sky-800 font-semibold shadow-xs'
+                  : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'
               }`}
             >
-              <BookOpen className="w-3.5 h-3.5" />
-              <span>Теория & Задание</span>
+              <BookOpen className="w-3.5 h-3.5 shrink-0" />
+              <span>Теория<span className="hidden xs:inline"> & Задание</span></span>
             </button>
           )}
 
           <button
             onClick={() => setMobileActiveView('editor')}
-            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer ${
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-1 text-xs font-medium rounded-md transition-colors cursor-pointer text-center ${
               mobileActiveView === 'editor'
-                ? 'bg-zinc-800 text-zinc-100 border border-zinc-700 font-semibold'
-                : 'text-zinc-400 hover:text-zinc-200'
+                ? 'bg-zinc-800 text-zinc-100 border border-zinc-700 font-semibold shadow-xs'
+                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'
             }`}
           >
-            <FileCode2 className="w-3.5 h-3.5 text-sky-400" />
-            <span>Редактор кода</span>
+            <FileCode2 className="w-3.5 h-3.5 shrink-0 text-sky-400" />
+            <span>Редактор<span className="hidden xs:inline"> кода</span></span>
           </button>
 
           <button
             onClick={() => setMobileActiveView('console')}
-            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer ${
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-1 text-xs font-medium rounded-md transition-colors cursor-pointer text-center ${
               mobileActiveView === 'console'
-                ? 'bg-zinc-800 text-emerald-400 border border-zinc-700 font-semibold'
-                : 'text-zinc-400 hover:text-zinc-200'
+                ? 'bg-zinc-800 text-emerald-400 border border-zinc-700 font-semibold shadow-xs'
+                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'
             }`}
           >
-            <Terminal className="w-3.5 h-3.5" />
-            <span>Консоль / Тесты</span>
+            <Terminal className="w-3.5 h-3.5 shrink-0" />
+            <span>Консоль<span className="hidden xs:inline"> / Тесты</span></span>
           </button>
         </div>
       )}
