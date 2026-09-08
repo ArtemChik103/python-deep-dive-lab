@@ -11,6 +11,7 @@ import {
   Menu,
   FileCode2,
   Terminal,
+  User,
 } from 'lucide-react';
 
 interface TopNavbarProps {
@@ -26,6 +27,10 @@ interface TopNavbarProps {
   completedCount: number;
   totalLessons: number;
   installedPackagesCount: number;
+  // Profile props
+  userLevel?: number;
+  userAccuracy?: number;
+  onOpenProfile?: () => void;
   // Mobile props
   isMobile: boolean;
   mobileActiveView: 'theory' | 'editor' | 'console';
@@ -46,6 +51,9 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
   completedCount,
   totalLessons,
   installedPackagesCount,
+  userLevel,
+  userAccuracy,
+  onOpenProfile,
   isMobile,
   mobileActiveView,
   setMobileActiveView,
@@ -206,7 +214,38 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
                 )}
               </button>
             </div>
+            {onOpenProfile && (
+              <button
+                onClick={onOpenProfile}
+                className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-zinc-950 border border-zinc-800 hover:border-sky-700/60 hover:bg-zinc-850 transition-colors cursor-pointer text-zinc-300 hover:text-white ml-1"
+                title="Профиль пользователя и достижения"
+              >
+                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center text-[10px] font-bold text-white shadow-xs">
+                  {userLevel || 1}
+                </div>
+                <div className="flex flex-col text-left">
+                  <span className="text-[10px] text-zinc-400 font-medium leading-none">Профиль</span>
+                  <span className="text-[11px] font-bold text-sky-400 leading-tight">
+                    {userAccuracy !== undefined ? `${userAccuracy}% точн.` : 'Ачивки'}
+                  </span>
+                </div>
+              </button>
+            )}
           </div>
+
+          {/* Mobile Profile Button */}
+          {onOpenProfile && (
+            <button
+              onClick={onOpenProfile}
+              className="md:hidden p-1.5 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-md transition-colors cursor-pointer relative"
+              title="Профиль и достижения"
+            >
+              <User className="w-4 h-4 text-sky-400" />
+              <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-sky-500 text-[9px] font-bold text-zinc-950 flex items-center justify-center">
+                {userLevel || 1}
+              </span>
+            </button>
+          )}
         </div>
       </div>
 

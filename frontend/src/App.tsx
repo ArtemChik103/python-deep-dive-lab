@@ -28,7 +28,19 @@ import { ConsolePanel } from './components/Output/ConsolePanel';
 import { CurriculumTree } from './components/Sidebar/CurriculumTree';
 import { FileExplorer } from './components/Sidebar/FileExplorer';
 import { PackageManager } from './components/Sidebar/PackageManager';
+import { ProfileModal } from './components/Profile/ProfileModal';
+import {
+  getUserProfile,
+  saveUserProfile,
+  getLessonStatsMap,
+  getAchievements,
+  incrementRunCount,
+  recordTestAttempt,
+  evaluateAllAchievements,
+  computeOverview,
+} from './services/progressService';
 import type {
+  Achievement,
   EditorTab,
   EvaluationResponse,
   ExecutionResult,
@@ -36,8 +48,10 @@ import type {
   HintItem,
   InstalledPackage,
   LessonDetail,
+  LessonSolutionStats,
   ModuleItem,
   PopularPackage,
+  UserProfile,
 } from './types';
 
 export function App() {
@@ -89,6 +103,15 @@ export function App() {
   const [activeConsoleTab, setActiveConsoleTab] = useState<'output' | 'tests' | 'plots' | 'pip'>('output');
   const [execResult, setExecResult] = useState<ExecutionResult | null>(null);
   const [evalResult, setEvalResult] = useState<EvaluationResponse | null>(null);
+
+  // User Profile, Solution Accuracy & Achievements State
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile>(getUserProfile);
+  const [lessonStatsMap, setLessonStatsMap] = useState<Record<string, LessonSolutionStats>>(getLessonStatsMap);
+  const [achievements, setAchievements] = useState<Achievement[]>(getAchievements);
+
+  // Derived Progress & Accuracy Overview
+  const progressOverview = computeOverview(modules, lessonStatsMap, achievements);
 
   // Split Pane Resizing for Desktop
   const theoryWidthPercent = 42;
@@ -281,6 +304,7 @@ export function App() {
         setTabs((prev) => prev.map((t) => (t.id === tab!.id ? { ...t, isDirty: false } : t)));
       }
 
+      incrementRunCount();
       const res = (!tab || tab.isLessonStarter)
         ? await executeCode(codeToRun)
         : await executeFile(tab.path);
@@ -290,6 +314,11 @@ export function App() {
       if (res.plots && res.plots.length > 0) {
         setActiveConsoleTab('plots');
       }
+
+      const { updatedAchievements } = evaluateAllAchievements(lessonStatsMap, {
+        hasPlot: Boolean(res.plots && res.plots.length > 0),
+      });
+      setAchievements(updatedAchievements);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       setExecResult({
@@ -318,6 +347,23 @@ export function App() {
     try {
       const res = await evaluateLesson(selectedLessonId, codeToTest);
       setEvalResult(res);
+
+      if (currentLesson) {
+        const { updatedStats, updatedAchievements } = recordTestAttempt({
+          lessonId: currentLesson.id,
+          lessonTitle: currentLesson.title,
+          moduleTitle: currentLesson.module_title,
+          difficulty: currentLesson.difficulty,
+          passedCount: res.passed_tests,
+          totalTests: res.total_tests,
+          allPassed: res.all_passed,
+          executionTimeMs: res.execution_time_ms,
+          hintsUsed: unlockedHints.length,
+          solutionRevealed: Boolean(currentSolution),
+        });
+        setLessonStatsMap(updatedStats);
+        setAchievements(updatedAchievements);
+      }
 
       if (res.all_passed) {
         confetti({
@@ -408,6 +454,8 @@ export function App() {
       if (res.success) {
         setPipLogs((prev) => prev + `\n✓ Пакет ${packageName} успешно установлен!\n`);
         loadPackages();
+        const { updatedAchievements } = evaluateAllAchievements(lessonStatsMap, { hasPackage: true });
+        setAchievements(updatedAchievements);
       } else {
         setPipLogs((prev) => prev + `\n✗ Ошибка установки ${packageName}.\n`);
       }
@@ -517,6 +565,9 @@ export function App() {
         completedCount={completedLessonIds.size}
         totalLessons={totalLessonsCount}
         installedPackagesCount={installedPackages.length}
+        userLevel={progressOverview.level}
+        userAccuracy={progressOverview.overallAccuracy}
+        onOpenProfile={() => setIsProfileModalOpen(true)}
         isMobile={isMobile}
         mobileActiveView={mobileActiveView}
         setMobileActiveView={setMobileActiveView}
@@ -534,6 +585,30 @@ export function App() {
 
           {/* Drawer Content */}
           <div className="relative w-4/5 max-w-sm h-full bg-zinc-900 border-r border-zinc-800 shadow-2xl flex flex-col z-10 animate-in slide-in-from-left duration-200">
+            {/* Drawer User Profile Banner */}
+            <div className="p-3 bg-gradient-to-r from-zinc-950 to-sky-950/40 border-b border-zinc-800 flex items-center justify-between">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center font-bold text-xs text-white shrink-0 shadow-xs">
+                  {progressOverview.level}
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold text-white truncate">{userProfile.name}</div>
+                  <div className="text-[10px] text-emerald-400 font-mono">
+                    {progressOverview.overallAccuracy}% точность • {progressOverview.unlockedAchievementsCount} ачивок
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setIsMobileSidebarOpen(false);
+                  setIsProfileModalOpen(true);
+                }}
+                className="px-2 py-1 text-[11px] bg-sky-950 hover:bg-sky-900 border border-sky-800 text-sky-300 rounded font-medium cursor-pointer shrink-0"
+              >
+                Профиль →
+              </button>
+            </div>
+
             {/* Drawer Header with tab selector */}
             <div className="p-3 border-b border-zinc-800 flex items-center justify-between bg-zinc-950">
               <div className="flex items-center gap-1">
@@ -705,6 +780,34 @@ export function App() {
           )}
         </main>
       </div>
+
+      {/* User Profile & Achievements Modal */}
+      <ProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        profile={userProfile}
+        onUpdateProfile={(updated) => {
+          setUserProfile(updated);
+          saveUserProfile(updated);
+        }}
+        overview={progressOverview}
+        statsMap={lessonStatsMap}
+        achievements={achievements}
+        modules={modules}
+        onSelectLesson={(lessonId) => {
+          loadLessonDetails(lessonId);
+          setIsProfileModalOpen(false);
+        }}
+        onResetProgress={() => {
+          localStorage.removeItem('pydeep_lesson_stats_v2');
+          localStorage.removeItem('pydeep_achievements_v2');
+          localStorage.removeItem('pydeep_completed_lessons');
+          localStorage.removeItem('pydeep_run_count');
+          setLessonStatsMap({});
+          setAchievements(getAchievements());
+          setCompletedLessonIds(new Set());
+        }}
+      />
     </div>
   );
 }

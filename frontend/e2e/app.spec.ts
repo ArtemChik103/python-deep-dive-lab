@@ -129,6 +129,48 @@ test.describe('Python Deep Dive Lab E2E Suite', () => {
 
     await expect(page.locator('text=Менеджер пакетов Pip')).toBeVisible();
     await expect(page.locator('text=Популярные для изучения')).toBeVisible();
-    await expect(page.locator('text=numpy')).toBeVisible();
+    await expect(page.locator('text=numpy').first()).toBeVisible();
+  });
+
+  test('9. Should open Profile Modal and display progress, accuracy, and achievements tabs', async ({ page }) => {
+    // Click Profile button in navbar
+    const profileBtn = page.locator('button[title="Профиль пользователя и достижения"]');
+    await expect(profileBtn).toBeVisible();
+    await profileBtn.click();
+
+    // Profile modal should appear
+    await expect(page.locator('text=Pythonista')).toBeVisible();
+    await expect(page.locator('text=Точность тестов')).toBeVisible();
+    await expect(page.locator('text=Точность решений & Тесты')).toBeVisible();
+
+    // Switch to Achievements tab
+    const achTabBtn = page.locator('button:has-text("Ачивки")');
+    await expect(achTabBtn).toBeVisible();
+    await achTabBtn.click();
+
+    // Verify achievement titles exist
+    await expect(page.locator('text=Первый импульс')).toBeVisible();
+    await expect(page.locator('text=Снайпер 100%')).toBeVisible();
+    await expect(page.locator('text=Магия графиков')).toBeVisible();
+
+    // Close modal
+    await page.keyboard.press('Escape');
+  });
+
+  test('10. Should accurately update solution test stats and achievements after test execution', async ({ page }) => {
+    // Run automated tests for current lesson
+    const testBtn = page.locator('button:has-text("Проверить тесты")');
+    await expect(testBtn).toBeVisible();
+    await testBtn.click();
+    await expect(page.locator('text=из 3 тестов')).toBeVisible();
+
+    // Open Profile modal
+    const profileBtn = page.locator('button[title="Профиль пользователя и достижения"]');
+    await profileBtn.click();
+
+    // Verify lesson stats record appears in accuracy tab
+    await expect(page.locator('text=Попыток: 1')).toBeVisible();
+    await expect(page.locator('text=Частичный успех')).toBeVisible();
   });
 });
+

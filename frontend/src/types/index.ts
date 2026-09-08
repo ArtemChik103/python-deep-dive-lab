@@ -98,3 +98,54 @@ export interface EditorTab {
   isDirty?: boolean;
   isLessonStarter?: boolean;
 }
+
+export interface UserProfile {
+  name: string;
+  title: string;
+  avatarIcon: string;
+  createdAt: string;
+}
+
+export interface LessonSolutionStats {
+  lessonId: string;
+  moduleTitle: string;
+  lessonTitle: string;
+  difficulty: Difficulty;
+  completed: boolean;
+  attemptsCount: number;
+  bestPassedCount: number;
+  totalTestsCount: number;
+  accuracyPercent: number; // 0 - 100
+  bestExecutionTimeMs: number;
+  hintsUsedCount: number;
+  solutionRevealed: boolean;
+  lastSolvedAt?: string;
+}
+
+export interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  category: 'core' | 'accuracy' | 'internals' | 'tools' | 'speed';
+  icon: string;
+  unlocked: boolean;
+  unlockedAt?: string;
+  progress: number; // 0 to 100
+  requirementText: string;
+}
+
+export interface UserProgressOverview {
+  totalLessons: number;
+  completedLessons: number;
+  totalTestsRun: number;
+  totalTestsPassed: number;
+  overallAccuracy: number; // 0 - 100%
+  totalCodeRuns: number;
+  averageExecutionTimeMs: number;
+  unlockedAchievementsCount: number;
+  totalAchievementsCount: number;
+  level: number;
+  levelTitle: string;
+  xp: number;
+  nextLevelXp: number;
+}

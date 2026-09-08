@@ -92,6 +92,8 @@ async def run_code_or_file(
         env = os.environ.copy()
         env["PYTHONPATH"] = str(USER_WORKSPACE_DIR)
         env["PYTHONUNBUFFERED"] = "1"
+        env["PYTHONIOENCODING"] = "utf-8"
+        env["PYTHONUTF8"] = "1"
         env["MPLBACKEND"] = "Agg"
         env["_PYDEEP_PLOT_DIR"] = temp_plot_dir
         if extra_env:
