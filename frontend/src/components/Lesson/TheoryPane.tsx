@@ -11,6 +11,7 @@ import {
   Check,
   ChevronDown,
   ChevronUp,
+  FileCode2,
 } from 'lucide-react';
 import type { HintItem, LessonDetail } from '../../types';
 
@@ -23,6 +24,7 @@ interface TheoryPaneProps {
   onApplySolutionToEditor: (solutionCode: string) => void;
   isLoadingHint: boolean;
   isLoadingSolution: boolean;
+  onGoToEditor?: () => void;
 }
 
 export const TheoryPane: React.FC<TheoryPaneProps> = ({
@@ -34,6 +36,7 @@ export const TheoryPane: React.FC<TheoryPaneProps> = ({
   onApplySolutionToEditor,
   isLoadingHint,
   isLoadingSolution,
+  onGoToEditor,
 }) => {
   const [showSolutionConfirm, setShowSolutionConfirm] = useState(false);
   const [copiedSolution, setCopiedSolution] = useState(false);
@@ -50,22 +53,22 @@ export const TheoryPane: React.FC<TheoryPaneProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-zinc-900 overflow-y-auto p-4 space-y-6 select-text">
+    <div className="flex flex-col h-full bg-zinc-900 overflow-y-auto p-3 sm:p-4 space-y-4 sm:space-y-6 select-text">
       {/* Header Info */}
-      <div className="space-y-2 border-b border-zinc-800 pb-4">
+      <div className="space-y-1.5 border-b border-zinc-800 pb-3">
         <div className="flex items-center gap-2 text-xs text-sky-400 font-medium">
           <BookOpen className="w-3.5 h-3.5" />
-          <span>{lesson.module_title}</span>
+          <span className="truncate">{lesson.module_title}</span>
         </div>
 
-        <h1 className="text-lg font-bold text-zinc-100 tracking-tight">
+        <h1 className="text-base sm:text-lg font-bold text-zinc-100 tracking-tight leading-snug">
           {lesson.title}
         </h1>
 
-        <div className="flex items-center gap-3 text-xs text-zinc-400">
+        <div className="flex items-center gap-3 text-xs text-zinc-400 pt-1">
           <span className="flex items-center gap-1">
             <Clock className="w-3.5 h-3.5 text-zinc-500" />
-            ~{lesson.estimated_minutes} минут
+            ~{lesson.estimated_minutes} мин
           </span>
           <span className="capitalize px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-800 text-zinc-300">
             {lesson.difficulty}
@@ -73,19 +76,30 @@ export const TheoryPane: React.FC<TheoryPaneProps> = ({
         </div>
       </div>
 
+      {/* Task Requirements Box */}
+      <div className="rounded-lg bg-sky-950/40 border border-sky-800/60 p-3 sm:p-3.5 space-y-1.5">
+        <div className="flex items-center gap-2 text-sky-400 font-semibold text-xs">
+          <CheckCircle className="w-4 h-4 shrink-0" />
+          <span>Техническое задание:</span>
+        </div>
+        <p className="text-xs text-sky-100 leading-relaxed">
+          {lesson.task_description}
+        </p>
+      </div>
+
       {/* Theory Markdown Section */}
       <div className="prose-dark text-xs space-y-3">
         {lesson.theory_md.split('\n\n').map((block, idx) => {
           if (block.startsWith('# ')) {
             return (
-              <h1 key={idx} className="text-base font-bold text-white border-b border-zinc-800 pb-1">
+              <h2 key={idx} className="text-sm sm:text-base font-bold text-white border-b border-zinc-800 pb-1 mt-2">
                 {block.replace('# ', '')}
-              </h1>
+              </h2>
             );
           }
           if (block.startsWith('### ')) {
             return (
-              <h3 key={idx} className="text-sm font-semibold text-zinc-200 mt-2">
+              <h3 key={idx} className="text-xs sm:text-sm font-semibold text-zinc-200 mt-2">
                 {block.replace('### ', '')}
               </h3>
             );
@@ -93,7 +107,7 @@ export const TheoryPane: React.FC<TheoryPaneProps> = ({
           if (block.startsWith('```')) {
             const cleanCode = block.replace(/```[a-z]*\n?/g, '').trim();
             return (
-              <pre key={idx} className="bg-zinc-950 p-3 rounded-md border border-zinc-800 overflow-x-auto text-[11px] font-mono text-zinc-200">
+              <pre key={idx} className="bg-zinc-950 p-2.5 sm:p-3 rounded-md border border-zinc-800 overflow-x-auto text-[11px] font-mono text-zinc-200">
                 <code>{cleanCode}</code>
               </pre>
             );
@@ -117,30 +131,19 @@ export const TheoryPane: React.FC<TheoryPaneProps> = ({
         })}
       </div>
 
-      {/* Task Requirements Box */}
-      <div className="rounded-lg bg-sky-950/30 border border-sky-800/60 p-3.5 space-y-2">
-        <div className="flex items-center gap-2 text-sky-400 font-semibold text-xs">
-          <CheckCircle className="w-4 h-4" />
-          <span>Техническое задание:</span>
-        </div>
-        <p className="text-xs text-sky-100 leading-relaxed">
-          {lesson.task_description}
-        </p>
-      </div>
-
       {/* Progressive Hints Drawer */}
-      <div className="rounded-lg bg-zinc-950/70 border border-zinc-800/80 p-3.5 space-y-3">
+      <div className="rounded-lg bg-zinc-950/70 border border-zinc-800/80 p-3 sm:p-3.5 space-y-2.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Lightbulb className="w-4 h-4 text-amber-400" />
+            <Lightbulb className="w-4 h-4 text-amber-400 shrink-0" />
             <span className="text-xs font-semibold text-zinc-200">
-              Система подсказок ({unlockedHints.length} / {lesson.total_hints})
+              Подсказки ({unlockedHints.length} / {lesson.total_hints})
             </span>
           </div>
 
           <button
             onClick={() => setHintsExpanded(!hintsExpanded)}
-            className="p-1 text-zinc-400 hover:text-zinc-200"
+            className="p-1 text-zinc-400 hover:text-zinc-200 cursor-pointer"
           >
             {hintsExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </button>
@@ -151,7 +154,7 @@ export const TheoryPane: React.FC<TheoryPaneProps> = ({
             {unlockedHints.map((hint) => (
               <div
                 key={hint.level}
-                className="rounded-md bg-zinc-900 border border-zinc-800 p-3 text-xs space-y-1 animate-in fade-in duration-200"
+                className="rounded-md bg-zinc-900 border border-zinc-800 p-2.5 sm:p-3 text-xs space-y-1 animate-in fade-in duration-200"
               >
                 <div className="flex items-center justify-between">
                   <span className="font-semibold text-amber-400 flex items-center gap-1.5">
@@ -172,7 +175,6 @@ export const TheoryPane: React.FC<TheoryPaneProps> = ({
               </div>
             ))}
 
-            {/* Unlock Next Hint Button */}
             {hasMoreHints ? (
               <button
                 onClick={onUnlockNextHint}
@@ -196,41 +198,41 @@ export const TheoryPane: React.FC<TheoryPaneProps> = ({
       </div>
 
       {/* Solution Section */}
-      <div className="rounded-lg bg-zinc-950/70 border border-zinc-800/80 p-3.5 space-y-3">
+      <div className="rounded-lg bg-zinc-950/70 border border-zinc-800/80 p-3 sm:p-3.5 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Eye className="w-4 h-4 text-indigo-400" />
+            <Eye className="w-4 h-4 text-indigo-400 shrink-0" />
             <span className="text-xs font-semibold text-zinc-200">
-              Эталонное решение задачи
+              Эталонное решение
             </span>
           </div>
         </div>
 
         {solution ? (
           <div className="space-y-3 animate-in fade-in duration-200">
-            <div className="flex items-center justify-between text-xs">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
               <span className="text-emerald-400 font-medium flex items-center gap-1">
                 <Check className="w-3.5 h-3.5" />
                 Решение открыто
               </span>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <button
                   onClick={handleCopySolution}
-                  className="flex items-center gap-1 px-2 py-1 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-[11px] transition-colors"
+                  className="flex items-center gap-1 px-2 py-1 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-[11px] transition-colors cursor-pointer"
                 >
                   {copiedSolution ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
                   <span>{copiedSolution ? 'Скопировано' : 'Копировать'}</span>
                 </button>
                 <button
                   onClick={() => onApplySolutionToEditor(solution)}
-                  className="flex items-center gap-1 px-2.5 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-medium transition-colors"
+                  className="flex items-center gap-1 px-2.5 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-medium transition-colors cursor-pointer"
                 >
                   Вставить в редактор
                 </button>
               </div>
             </div>
 
-            <pre className="bg-zinc-950 p-3 rounded-md border border-zinc-800 overflow-x-auto text-[11px] font-mono text-emerald-300 max-h-72">
+            <pre className="bg-zinc-950 p-3 rounded-md border border-zinc-800 overflow-x-auto text-[11px] font-mono text-emerald-300 max-h-60">
               <code>{solution}</code>
             </pre>
           </div>
@@ -246,15 +248,15 @@ export const TheoryPane: React.FC<TheoryPaneProps> = ({
                   setShowSolutionConfirm(false);
                 }}
                 disabled={isLoadingSolution}
-                className="px-3 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded text-xs font-semibold"
+                className="px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded text-xs font-semibold cursor-pointer"
               >
                 {isLoadingSolution ? 'Загрузка...' : 'Да, показать решение'}
               </button>
               <button
                 onClick={() => setShowSolutionConfirm(false)}
-                className="px-3 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded text-xs"
+                className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded text-xs cursor-pointer"
               >
-                Попробовать еще раз самому
+                Попробовать самому
               </button>
             </div>
           </div>
@@ -268,6 +270,19 @@ export const TheoryPane: React.FC<TheoryPaneProps> = ({
           </button>
         )}
       </div>
+
+      {/* Floating CTA to go straight to Editor on mobile */}
+      {onGoToEditor && (
+        <div className="pt-2 pb-6">
+          <button
+            onClick={onGoToEditor}
+            className="w-full py-2.5 px-4 bg-sky-600 hover:bg-sky-500 active:bg-sky-700 text-white rounded-lg font-semibold text-xs flex items-center justify-center gap-2 shadow-md transition-colors cursor-pointer"
+          >
+            <FileCode2 className="w-4 h-4" />
+            <span>Перейти к решению в редакторе →</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 };

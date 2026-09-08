@@ -5,12 +5,12 @@ test.describe('Python Deep Dive Lab E2E Suite', () => {
     // Navigate to the app root
     await page.goto('/');
     // Wait for the app to hydrate and fetch modules
-    await page.waitForSelector('text=Python Deep Dive');
+    await page.waitForSelector('text=PyDeep');
   });
 
   test('1. Should render the application with navigation, curriculum, and first lesson', async ({ page }) => {
     // 1. Brand title
-    await expect(page.locator('text=Python Deep Dive')).toBeVisible();
+    await expect(page.locator('text=PyDeep').first()).toBeVisible();
 
     // 2. Mode buttons
     await expect(page.locator('button:has-text("Обучение")')).toBeVisible();

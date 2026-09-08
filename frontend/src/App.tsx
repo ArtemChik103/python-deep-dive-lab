@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import confetti from 'canvas-confetti';
+import { X, BookOpen, FolderTree, Package } from 'lucide-react';
 import {
   createFileOrFolder,
   deleteFile,
@@ -40,6 +41,16 @@ import type {
 } from './types';
 
 export function App() {
+  // Mobile Responsiveness State
+  const [isMobile, setIsMobile] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 768;
+    }
+    return false;
+  });
+  const [mobileActiveView, setMobileActiveView] = useState<'theory' | 'editor' | 'console'>('theory');
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
   // Navigation & Mode
   const [mode, setMode] = useState<'curriculum' | 'sandbox'>('curriculum');
   const [activeSidebarTab, setActiveSidebarTab] = useState<'curriculum' | 'files' | 'packages'>('curriculum');
@@ -79,9 +90,19 @@ export function App() {
   const [execResult, setExecResult] = useState<ExecutionResult | null>(null);
   const [evalResult, setEvalResult] = useState<EvaluationResponse | null>(null);
 
-  // Split Pane Resizing
+  // Split Pane Resizing for Desktop
   const theoryWidthPercent = 42;
   const consoleHeight = 240;
+
+  // Window resize listener
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Initial Data Fetch
   useEffect(() => {
@@ -147,11 +168,22 @@ export function App() {
       const res = await fetchFileTree();
       setFiles(res.files);
 
-      // If no tabs open, open main.py if present
       if (tabs.length === 0) {
         const mainPy = res.files.find((f) => f.name === 'main.py');
         if (mainPy) {
-          handleOpenFile(mainPy.path);
+          try {
+            const fileData = await readFile(mainPy.path);
+            const newTab: EditorTab = {
+              id: `file_${mainPy.path}`,
+              name: 'main.py',
+              path: mainPy.path,
+              content: fileData.content,
+              isDirty: false,
+            };
+            setTabs((prev) => (prev.some((t) => t.id === newTab.id) ? prev : [...prev, newTab]));
+          } catch {
+            // ignore initial preload error
+          }
         }
       }
     } catch (err) {
@@ -174,6 +206,10 @@ export function App() {
     const existing = tabs.find((t) => t.path === path);
     if (existing) {
       setActiveTabId(existing.id);
+      if (isMobile) {
+        setMobileActiveView('editor');
+        setIsMobileSidebarOpen(false);
+      }
       return;
     }
     try {
@@ -188,6 +224,10 @@ export function App() {
       };
       setTabs((prev) => [...prev, newTab]);
       setActiveTabId(newTab.id);
+      if (isMobile) {
+        setMobileActiveView('editor');
+        setIsMobileSidebarOpen(false);
+      }
     } catch (err) {
       alert(`Ошибка чтения файла: ${err}`);
     }
@@ -229,6 +269,8 @@ export function App() {
 
     setIsRunning(true);
     setActiveConsoleTab('output');
+    if (isMobile) setMobileActiveView('console');
+
     try {
       if (!tab.isLessonStarter && tab.isDirty) {
         await saveFile(tab.path, tab.content);
@@ -267,6 +309,8 @@ export function App() {
 
     setIsTesting(true);
     setActiveConsoleTab('tests');
+    if (isMobile) setMobileActiveView('console');
+
     try {
       const res = await evaluateLesson(selectedLessonId, codeToTest);
       setEvalResult(res);
@@ -345,12 +389,14 @@ export function App() {
   const handleApplySolutionToEditor = (solutionCode: string) => {
     if (!activeTabId) return;
     handleChangeContent(activeTabId, solutionCode);
+    if (isMobile) setMobileActiveView('editor');
   };
 
   // Pip actions
   const handleInstallPackage = async (packageName: string) => {
     setIsInstalling(true);
     setActiveConsoleTab('pip');
+    if (isMobile) setMobileActiveView('console');
     setPipLogs(`[pip install ${packageName}] Выполняется установка пакета...\n`);
     try {
       const res = await installPackage(packageName);
@@ -372,6 +418,7 @@ export function App() {
   const handleUninstallPackage = async (packageName: string) => {
     setIsInstalling(true);
     setActiveConsoleTab('pip');
+    if (isMobile) setMobileActiveView('console');
     setPipLogs(`[pip uninstall ${packageName}] Удаление пакета...\n`);
     try {
       const res = await uninstallPackage(packageName);
@@ -390,8 +437,68 @@ export function App() {
 
   const totalLessonsCount = modules.reduce((acc, m) => acc + m.total_lessons, 0);
 
+  // Sidebar component content
+  const renderSidebarContent = () => (
+    <>
+      {activeSidebarTab === 'curriculum' && (
+        <CurriculumTree
+          modules={modules}
+          selectedLessonId={selectedLessonId}
+          onSelectLesson={(lessonId) => {
+            loadLessonDetails(lessonId);
+            if (mode !== 'curriculum') setMode('curriculum');
+            if (isMobile) {
+              setMobileActiveView('theory');
+              setIsMobileSidebarOpen(false);
+            }
+          }}
+          completedLessonIds={completedLessonIds}
+        />
+      )}
+
+      {activeSidebarTab === 'files' && (
+        <FileExplorer
+          files={files}
+          activeFilePath={tabs.find((t) => t.id === activeTabId)?.path || null}
+          onOpenFile={handleOpenFile}
+          onCreateFile={async (path, isDir) => {
+            await createFileOrFolder(path, isDir);
+            await loadWorkspaceFiles();
+            if (!isDir) handleOpenFile(path);
+          }}
+          onRenameFile={async (oldPath, newPath) => {
+            await renameFile(oldPath, newPath);
+            await loadWorkspaceFiles();
+          }}
+          onDeleteFile={async (path) => {
+            await deleteFile(path);
+            await loadWorkspaceFiles();
+            const openedTab = tabs.find((t) => t.path === path);
+            if (openedTab) handleCloseTab(openedTab.id);
+          }}
+          onRefresh={loadWorkspaceFiles}
+          onResetWorkspace={async () => {
+            await resetWorkspace();
+            await loadWorkspaceFiles();
+          }}
+        />
+      )}
+
+      {activeSidebarTab === 'packages' && (
+        <PackageManager
+          installed={installedPackages}
+          popular={popularPackages}
+          onInstall={handleInstallPackage}
+          onUninstall={handleUninstallPackage}
+          onRefresh={loadPackages}
+          isInstalling={isInstalling}
+        />
+      )}
+    </>
+  );
+
   return (
-    <div className="flex flex-col h-screen w-screen bg-zinc-950 text-zinc-100 overflow-hidden font-sans">
+    <div className="flex flex-col h-[100dvh] w-screen bg-zinc-950 text-zinc-100 overflow-hidden font-sans">
       {/* Top Navbar */}
       <TopNavbar
         mode={mode}
@@ -406,119 +513,192 @@ export function App() {
         completedCount={completedLessonIds.size}
         totalLessons={totalLessonsCount}
         installedPackagesCount={installedPackages.length}
+        isMobile={isMobile}
+        mobileActiveView={mobileActiveView}
+        setMobileActiveView={setMobileActiveView}
+        onToggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
       />
+
+      {/* Mobile Drawer (Off-canvas sidebar overlay) */}
+      {isMobile && isMobileSidebarOpen && (
+        <div className="fixed inset-0 z-50 flex">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/70 backdrop-blur-xs transition-opacity"
+            onClick={() => setIsMobileSidebarOpen(false)}
+          />
+
+          {/* Drawer Content */}
+          <div className="relative w-4/5 max-w-sm h-full bg-zinc-900 border-r border-zinc-800 shadow-2xl flex flex-col z-10 animate-in slide-in-from-left duration-200">
+            {/* Drawer Header with tab selector */}
+            <div className="p-3 border-b border-zinc-800 flex items-center justify-between bg-zinc-950">
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setActiveSidebarTab('curriculum')}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md font-medium transition-colors ${
+                    activeSidebarTab === 'curriculum' ? 'bg-zinc-800 text-sky-400' : 'text-zinc-400'
+                  }`}
+                >
+                  <BookOpen className="w-3.5 h-3.5" />
+                  <span>Курс</span>
+                </button>
+                <button
+                  onClick={() => setActiveSidebarTab('files')}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md font-medium transition-colors ${
+                    activeSidebarTab === 'files' ? 'bg-zinc-800 text-amber-400' : 'text-zinc-400'
+                  }`}
+                >
+                  <FolderTree className="w-3.5 h-3.5" />
+                  <span>Файлы</span>
+                </button>
+                <button
+                  onClick={() => setActiveSidebarTab('packages')}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md font-medium transition-colors ${
+                    activeSidebarTab === 'packages' ? 'bg-zinc-800 text-emerald-400' : 'text-zinc-400'
+                  }`}
+                >
+                  <Package className="w-3.5 h-3.5" />
+                  <span>Pip</span>
+                </button>
+              </div>
+
+              <button
+                onClick={() => setIsMobileSidebarOpen(false)}
+                className="p-1.5 text-zinc-400 hover:text-white rounded-md hover:bg-zinc-800"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Drawer Body */}
+            <div className="flex-1 overflow-hidden">
+              {renderSidebarContent()}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Workspace Area */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Left Drawer Sidebar (Curriculum / Files / Pip) */}
-        <aside className="w-72 md:w-80 shrink-0 h-full border-r border-zinc-800 bg-zinc-900">
-          {activeSidebarTab === 'curriculum' && (
-            <CurriculumTree
-              modules={modules}
-              selectedLessonId={selectedLessonId}
-              onSelectLesson={(lessonId) => {
-                loadLessonDetails(lessonId);
-                if (mode !== 'curriculum') setMode('curriculum');
-              }}
-              completedLessonIds={completedLessonIds}
-            />
-          )}
+        {/* Desktop Left Sidebar */}
+        {!isMobile && (
+          <aside className="w-72 md:w-80 shrink-0 h-full border-r border-zinc-800 bg-zinc-900 overflow-hidden">
+            {renderSidebarContent()}
+          </aside>
+        )}
 
-          {activeSidebarTab === 'files' && (
-            <FileExplorer
-              files={files}
-              activeFilePath={tabs.find((t) => t.id === activeTabId)?.path || null}
-              onOpenFile={handleOpenFile}
-              onCreateFile={async (path, isDir) => {
-                await createFileOrFolder(path, isDir);
-                await loadWorkspaceFiles();
-                if (!isDir) handleOpenFile(path);
-              }}
-              onRenameFile={async (oldPath, newPath) => {
-                await renameFile(oldPath, newPath);
-                await loadWorkspaceFiles();
-              }}
-              onDeleteFile={async (path) => {
-                await deleteFile(path);
-                await loadWorkspaceFiles();
-                const openedTab = tabs.find((t) => t.path === path);
-                if (openedTab) handleCloseTab(openedTab.id);
-              }}
-              onRefresh={loadWorkspaceFiles}
-              onResetWorkspace={async () => {
-                await resetWorkspace();
-                await loadWorkspaceFiles();
-              }}
-            />
-          )}
-
-          {activeSidebarTab === 'packages' && (
-            <PackageManager
-              installed={installedPackages}
-              popular={popularPackages}
-              onInstall={handleInstallPackage}
-              onUninstall={handleUninstallPackage}
-              onRefresh={loadPackages}
-              isInstalling={isInstalling}
-            />
-          )}
-        </aside>
-
-        {/* Center Canvas & Split Panes */}
+        {/* Center Canvas */}
         <main className="flex-1 flex flex-col h-full overflow-hidden bg-zinc-950">
-          {/* Top Split Area: Theory (if in curriculum) + Editor */}
-          <div className="flex-1 flex overflow-hidden">
-            {/* Theory & Hints Pane (Only in Curriculum mode) */}
-            {mode === 'curriculum' && currentLesson && (
+          {/* MOBILE VIEW HANDLING */}
+          {isMobile ? (
+            <div className="flex-1 w-full h-full overflow-hidden relative">
+              {/* Mobile View 1: Theory */}
+              {mobileActiveView === 'theory' && mode === 'curriculum' && currentLesson && (
+                <div className="w-full h-full overflow-y-auto">
+                  <TheoryPane
+                    lesson={currentLesson}
+                    unlockedHints={unlockedHints}
+                    onUnlockNextHint={handleUnlockNextHint}
+                    onRevealSolution={handleRevealSolution}
+                    solution={currentSolution}
+                    onApplySolutionToEditor={handleApplySolutionToEditor}
+                    isLoadingHint={isLoadingHint}
+                    isLoadingSolution={isLoadingSolution}
+                    onGoToEditor={() => setMobileActiveView('editor')}
+                  />
+                </div>
+              )}
+
+              {/* Mobile View 2: Code Editor */}
+              {mobileActiveView === 'editor' && (
+                <div className="w-full h-full overflow-hidden">
+                  <MonacoCodeEditor
+                    tabs={tabs}
+                    activeTabId={activeTabId}
+                    onSelectTab={setActiveTabId}
+                    onCloseTab={handleCloseTab}
+                    onChangeContent={handleChangeContent}
+                    onSave={handleSaveFile}
+                    onRun={handleRunCode}
+                  />
+                </div>
+              )}
+
+              {/* Mobile View 3: Console / Tests */}
+              {mobileActiveView === 'console' && (
+                <div className="w-full h-full overflow-hidden">
+                  <ConsolePanel
+                    activeTab={activeConsoleTab}
+                    setActiveTab={setActiveConsoleTab}
+                    execResult={execResult}
+                    evalResult={evalResult}
+                    pipLogs={pipLogs}
+                    onClearOutput={() => {
+                      setExecResult(null);
+                      setEvalResult(null);
+                      setPipLogs('');
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          ) : (
+            /* DESKTOP SPLIT VIEW */
+            <>
+              <div className="flex-1 flex overflow-hidden">
+                {/* Theory & Hints Pane (Curriculum mode) */}
+                {mode === 'curriculum' && currentLesson && (
+                  <div
+                    className="h-full border-r border-zinc-800 shrink-0 overflow-hidden"
+                    style={{ width: `${theoryWidthPercent}%` }}
+                  >
+                    <TheoryPane
+                      lesson={currentLesson}
+                      unlockedHints={unlockedHints}
+                      onUnlockNextHint={handleUnlockNextHint}
+                      onRevealSolution={handleRevealSolution}
+                      solution={currentSolution}
+                      onApplySolutionToEditor={handleApplySolutionToEditor}
+                      isLoadingHint={isLoadingHint}
+                      isLoadingSolution={isLoadingSolution}
+                    />
+                  </div>
+                )}
+
+                {/* Monaco Editor Canvas */}
+                <div className="flex-1 h-full overflow-hidden">
+                  <MonacoCodeEditor
+                    tabs={tabs}
+                    activeTabId={activeTabId}
+                    onSelectTab={setActiveTabId}
+                    onCloseTab={handleCloseTab}
+                    onChangeContent={handleChangeContent}
+                    onSave={handleSaveFile}
+                    onRun={handleRunCode}
+                  />
+                </div>
+              </div>
+
+              {/* Bottom Console Panel */}
               <div
-                className="h-full border-r border-zinc-800 shrink-0 overflow-hidden"
-                style={{ width: `${theoryWidthPercent}%` }}
+                className="shrink-0 transition-all border-t border-zinc-800"
+                style={{ height: `${consoleHeight}px` }}
               >
-                <TheoryPane
-                  lesson={currentLesson}
-                  unlockedHints={unlockedHints}
-                  onUnlockNextHint={handleUnlockNextHint}
-                  onRevealSolution={handleRevealSolution}
-                  solution={currentSolution}
-                  onApplySolutionToEditor={handleApplySolutionToEditor}
-                  isLoadingHint={isLoadingHint}
-                  isLoadingSolution={isLoadingSolution}
+                <ConsolePanel
+                  activeTab={activeConsoleTab}
+                  setActiveTab={setActiveConsoleTab}
+                  execResult={execResult}
+                  evalResult={evalResult}
+                  pipLogs={pipLogs}
+                  onClearOutput={() => {
+                    setExecResult(null);
+                    setEvalResult(null);
+                    setPipLogs('');
+                  }}
                 />
               </div>
-            )}
-
-            {/* Monaco Editor Canvas */}
-            <div className="flex-1 h-full overflow-hidden">
-              <MonacoCodeEditor
-                tabs={tabs}
-                activeTabId={activeTabId}
-                onSelectTab={setActiveTabId}
-                onCloseTab={handleCloseTab}
-                onChangeContent={handleChangeContent}
-                onSave={handleSaveFile}
-                onRun={handleRunCode}
-              />
-            </div>
-          </div>
-
-          {/* Bottom Console Panel */}
-          <div
-            className="shrink-0 transition-all border-t border-zinc-800"
-            style={{ height: `${consoleHeight}px` }}
-          >
-            <ConsolePanel
-              activeTab={activeConsoleTab}
-              setActiveTab={setActiveConsoleTab}
-              execResult={execResult}
-              evalResult={evalResult}
-              pipLogs={pipLogs}
-              onClearOutput={() => {
-                setExecResult(null);
-                setEvalResult(null);
-                setPipLogs('');
-              }}
-            />
-          </div>
+            </>
+          )}
         </main>
       </div>
     </div>
