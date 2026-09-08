@@ -1,5 +1,6 @@
 from typing import Any, Dict, List, Optional
 
+from app.data.curriculum.module0_absolute_basics import MODULE_0
 from app.data.curriculum.module1_basics import MODULE_1
 from app.data.curriculum.module2_collections import MODULE_2
 from app.data.curriculum.module3_oop_internals import MODULE_3
@@ -12,6 +13,7 @@ from app.data.curriculum.module9_typing_protocols import MODULE_9
 from app.data.curriculum.module10_production import MODULE_10
 
 ALL_MODULES: List[Dict[str, Any]] = [
+    MODULE_0,
     MODULE_1,
     MODULE_2,
     MODULE_3,

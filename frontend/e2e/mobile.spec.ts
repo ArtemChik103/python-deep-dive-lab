@@ -27,7 +27,7 @@ test.describe('Mobile Viewport UX Suite (390x844)', () => {
     await expect(page.locator('button:has-text("Консоль / Тесты")')).toBeVisible();
 
     // Theory pane should be visible and readable
-    await expect(page.locator('h1:has-text("1.1. Ссылочная модель")')).toBeVisible();
+    await expect(page.locator('h1:has-text("0.1. Переменные, вычисления и вывод")')).toBeVisible();
   });
 
   test('2. Should open and close off-canvas drawer on mobile', async ({ page }) => {
@@ -39,11 +39,11 @@ test.describe('Mobile Viewport UX Suite (390x844)', () => {
     await expect(page.locator('button:has-text("Файлы")')).toBeVisible();
     await expect(page.locator('button:has-text("Pip")')).toBeVisible();
 
-    // Click on lesson 1.2 inside the drawer
-    await page.click('button:has-text("1.2. Области видимости LEGB")');
+    // Click on lesson 0.2 inside the drawer
+    await page.click('button:has-text("0.2. Ветвления и логика")');
 
-    // Drawer should automatically close and theory pane should show lesson 1.2
-    await expect(page.locator('h1:has-text("1.2. Области видимости LEGB")')).toBeVisible();
+    // Drawer should automatically close and theory pane should show lesson 0.2
+    await expect(page.locator('h1:has-text("0.2. Ветвления и логика")')).toBeVisible();
   });
 
   test('3. Should seamlessly switch views using mobile tabs and jump to editor button', async ({ page }) => {
@@ -61,7 +61,7 @@ test.describe('Mobile Viewport UX Suite (390x844)', () => {
 
     // Switch back to Theory tab
     await page.click('button:has-text("Теория & Задание")');
-    await expect(page.locator('h1:has-text("1.1. Ссылочная модель")')).toBeVisible();
+    await expect(page.locator('h1:has-text("0.1. Переменные, вычисления и вывод")')).toBeVisible();
   });
 
   test('4. Should run code on mobile and auto-navigate to console view', async ({ page }) => {

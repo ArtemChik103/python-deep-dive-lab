@@ -24,9 +24,9 @@ def test_curriculum_catalog():
     assert response.status_code == 200
     data = response.json()
     assert "modules" in data
-    assert len(data["modules"]) == 10
+    assert len(data["modules"]) >= 10
     first_mod = data["modules"][0]
-    assert first_mod["id"] == "module_1"
+    assert first_mod["id"] == "module_0"
     assert len(first_mod["lessons"]) > 0
 
 

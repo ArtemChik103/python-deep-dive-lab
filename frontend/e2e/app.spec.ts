@@ -21,35 +21,35 @@ test.describe('Python Deep Dive Lab E2E Suite', () => {
     await expect(page.locator('button:has-text("Проверить тесты")')).toBeVisible();
 
     // 4. Curriculum sidebar modules
-    await expect(page.locator('text=Модуль 1: Ядро Python').first()).toBeVisible();
+    await expect(page.locator('text=Модуль 0: Абсолютный старт').first()).toBeVisible();
 
     // 5. Theory pane active lesson title
-    await expect(page.locator('h1:has-text("1.1. Ссылочная модель")')).toBeVisible();
+    await expect(page.locator('h1:has-text("0.1. Переменные, вычисления и вывод")')).toBeVisible();
   });
 
   test('2. Should toggle between Curriculum and Sandbox modes', async ({ page }) => {
     // Check initial curriculum theory pane
-    await expect(page.locator('h1:has-text("1.1. Ссылочная модель")')).toBeVisible();
+    await expect(page.locator('h1:has-text("0.1. Переменные, вычисления и вывод")')).toBeVisible();
 
     // Switch to Sandbox mode
     await page.click('button:has-text("Песочница")');
 
     // Theory pane should no longer be visible in sandbox mode
-    await expect(page.locator('h1:has-text("1.1. Ссылочная модель")')).not.toBeVisible();
+    await expect(page.locator('h1:has-text("0.1. Переменные, вычисления и вывод")')).not.toBeVisible();
 
     // Switch back to Curriculum mode
     await page.click('button:has-text("Обучение")');
-    await expect(page.locator('h1:has-text("1.1. Ссылочная модель")')).toBeVisible();
+    await expect(page.locator('h1:has-text("0.1. Переменные, вычисления и вывод")')).toBeVisible();
   });
 
   test('3. Should switch lessons within curriculum', async ({ page }) => {
-    // Click on lesson 1.2 in curriculum sidebar
-    const lesson1_2 = page.locator('button:has-text("1.2. Области видимости LEGB")');
-    await expect(lesson1_2).toBeVisible();
-    await lesson1_2.click();
+    // Click on lesson 0.2 in curriculum sidebar
+    const lesson0_2 = page.locator('button:has-text("0.2. Ветвления и логика")');
+    await expect(lesson0_2).toBeVisible();
+    await lesson0_2.click();
 
     // Theory pane title should update
-    await expect(page.locator('h1:has-text("1.2. Области видимости LEGB")')).toBeVisible();
+    await expect(page.locator('h1:has-text("0.2. Ветвления и логика")')).toBeVisible();
   });
 
   test('4. Should progressively unlock hints', async ({ page }) => {
