@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: python-deep-dive-lab
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - ENV=production
+    volumes:
+      # Persistent storage for user files and workspace venv
+      - workspace_data:/app/backend/user_workspace
+      - venv_data:/app/workspace_env
+
+volumes:
+  workspace_data:
+  venv_data:
