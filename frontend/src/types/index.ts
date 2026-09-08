@@ -121,6 +121,7 @@ export interface LessonSolutionStats {
   hintsUsedCount: number;
   solutionRevealed: boolean;
   solutionCopied?: boolean;
+  level3HintUsed?: boolean;
   lastSolvedAt?: string;
 }
 

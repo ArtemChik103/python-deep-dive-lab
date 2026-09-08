@@ -351,8 +351,14 @@ export function App() {
       setEvalResult(res);
 
       if (currentLesson) {
+        const hasLevel3Hint =
+          unlockedHints.some((h) => h.level >= 3) ||
+          unlockedHints.length >= 3 ||
+          Boolean(lessonStatsMap[selectedLessonId]?.level3HintUsed);
+
         const isSolutionRevealed = Boolean(
           currentSolution ||
+          hasLevel3Hint ||
           revealedSolutionLessons.has(selectedLessonId) ||
           copiedSolutionLessons.has(selectedLessonId) ||
           lessonStatsMap[selectedLessonId]?.solutionRevealed
@@ -374,6 +380,7 @@ export function App() {
           hintsUsed: unlockedHints.length,
           solutionRevealed: isSolutionRevealed,
           solutionCopied: isSolutionCopied,
+          level3HintUsed: hasLevel3Hint,
         });
         setLessonStatsMap(updatedStats);
         setAchievements(updatedAchievements);
@@ -430,6 +437,9 @@ export function App() {
     try {
       const hint = await fetchHint(selectedLessonId, nextLevel);
       setUnlockedHints((prev) => [...prev, hint]);
+      if (nextLevel >= 3) {
+        setRevealedSolutionLessons((prev) => new Set([...prev, selectedLessonId]));
+      }
     } catch (err) {
       alert(`Ошибка получения подсказки: ${err}`);
     } finally {

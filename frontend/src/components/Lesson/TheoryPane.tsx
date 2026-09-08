@@ -200,7 +200,9 @@ export const TheoryPane: React.FC<TheoryPaneProps> = ({
                     <span>Уровень {hint.level}:</span>
                     <span>{hint.title}</span>
                   </span>
-                  <span className="text-[10px] text-zinc-500 font-mono">Разблокировано</span>
+                  <span className="text-[10px] text-zinc-500 font-mono">
+                    {hint.level === 3 ? 'Ознакомление' : 'Разблокировано'}
+                  </span>
                 </div>
                 <div className="text-zinc-300 leading-relaxed mt-1">
                   {hint.content.startsWith('```') ? (
@@ -226,18 +228,25 @@ export const TheoryPane: React.FC<TheoryPaneProps> = ({
             ))}
 
             {hasMoreHints ? (
-              <button
-                onClick={onUnlockNextHint}
-                disabled={isLoadingHint}
-                className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-amber-950/50 hover:bg-amber-900/60 border border-amber-800/60 text-amber-300 hover:text-amber-200 rounded-md text-xs font-medium transition-colors cursor-pointer"
-              >
-                <Unlock className="w-3.5 h-3.5" />
-                <span>
-                  {isLoadingHint
-                    ? 'Загрузка...'
-                    : `Открыть подсказку ${nextHintLevel} из ${lesson.total_hints}`}
-                </span>
-              </button>
+              <div className="space-y-1.5">
+                <button
+                  onClick={onUnlockNextHint}
+                  disabled={isLoadingHint}
+                  className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-amber-950/50 hover:bg-amber-900/60 border border-amber-800/60 text-amber-300 hover:text-amber-200 rounded-md text-xs font-medium transition-colors cursor-pointer"
+                >
+                  <Unlock className="w-3.5 h-3.5" />
+                  <span>
+                    {isLoadingHint
+                      ? 'Загрузка...'
+                      : `Открыть подсказку ${nextHintLevel} из ${lesson.total_hints}`}
+                  </span>
+                </button>
+                {nextHintLevel === 3 && (
+                  <p className="text-[10px] text-amber-400/90 text-center leading-tight">
+                    ⚠️ 3-я подсказка содержит готовый код решения. При её открытии урок перейдет в режим «Ознакомление».
+                  </p>
+                )}
+              </div>
             ) : (
               <div className="text-[11px] text-zinc-500 text-center py-1">
                 Все доступные подсказки открыты

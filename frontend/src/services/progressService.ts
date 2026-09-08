@@ -217,6 +217,7 @@ export interface RecordAttemptParams {
   hintsUsed: number;
   solutionRevealed: boolean;
   solutionCopied?: boolean;
+  level3HintUsed?: boolean;
 }
 
 export const recordTestAttempt = (params: RecordAttemptParams): {
@@ -232,9 +233,11 @@ export const recordTestAttempt = (params: RecordAttemptParams): {
   const totalTests = Math.max(existing?.totalTestsCount || 0, params.totalTests);
   const accuracy = totalTests > 0 ? Math.round((bestPassed / totalTests) * 100) : 0;
   const completed = Boolean(existing?.completed || params.allPassed);
-  const solutionRevealed = Boolean(existing?.solutionRevealed || params.solutionRevealed);
+  const hintsUsedCount = Math.max(existing?.hintsUsedCount || 0, params.hintsUsed);
+  const isHint3 = Boolean(params.level3HintUsed || hintsUsedCount >= 3 || existing?.level3HintUsed);
+  const solutionRevealed = Boolean(existing?.solutionRevealed || params.solutionRevealed || isHint3);
   const solutionCopied = Boolean(existing?.solutionCopied || params.solutionCopied);
-  const solvedIndependently = completed && !solutionRevealed;
+  const solvedIndependently = completed && !solutionRevealed && !isHint3;
   const bestTime = existing?.bestExecutionTimeMs
     ? Math.min(existing.bestExecutionTimeMs, params.executionTimeMs)
     : params.executionTimeMs;
@@ -251,9 +254,10 @@ export const recordTestAttempt = (params: RecordAttemptParams): {
     totalTestsCount: totalTests,
     accuracyPercent: accuracy,
     bestExecutionTimeMs: bestTime,
-    hintsUsedCount: Math.max(existing?.hintsUsedCount || 0, params.hintsUsed),
+    hintsUsedCount,
     solutionRevealed,
     solutionCopied,
+    level3HintUsed: isHint3,
     lastSolvedAt: params.allPassed ? new Date().toISOString() : existing?.lastSolvedAt,
   };
 
