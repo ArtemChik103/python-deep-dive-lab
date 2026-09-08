@@ -83,9 +83,20 @@ export const TheoryPane: React.FC<TheoryPaneProps> = ({
           <CheckCircle className="w-4 h-4 shrink-0" />
           <span>Техническое задание:</span>
         </div>
-        <p className="text-xs text-sky-100 leading-relaxed">
-          {lesson.task_description}
-        </p>
+        <div className="text-xs text-sky-100 leading-relaxed">
+          <ReactMarkdown
+            components={{
+              p: ({ children }) => <p className="leading-relaxed">{children}</p>,
+              code: ({ children }) => (
+                <code className="px-1.5 py-0.5 rounded bg-sky-900/60 text-sky-200 border border-sky-700/50 font-mono text-[11px] break-all">
+                  {children}
+                </code>
+              ),
+            }}
+          >
+            {lesson.task_description}
+          </ReactMarkdown>
+        </div>
       </div>
 
       {/* Theory Markdown Section */}
@@ -197,7 +208,18 @@ export const TheoryPane: React.FC<TheoryPaneProps> = ({
                       <code>{hint.content.replace(/```[a-z]*\n?/g, '').trim()}</code>
                     </pre>
                   ) : (
-                    hint.content
+                    <ReactMarkdown
+                      components={{
+                        p: ({ children }) => <p className="leading-relaxed">{children}</p>,
+                        code: ({ children }) => (
+                          <code className="px-1 py-0.5 rounded bg-zinc-800 text-amber-300 font-mono text-[11px] border border-zinc-700/60">
+                            {children}
+                          </code>
+                        ),
+                      }}
+                    >
+                      {hint.content}
+                    </ReactMarkdown>
                   )}
                 </div>
               </div>
