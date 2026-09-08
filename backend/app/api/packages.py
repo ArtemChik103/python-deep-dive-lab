@@ -59,6 +59,54 @@ POPULAR_PACKAGES = [
         "docs_url": "https://scipy.org"
     },
     {
+        "name": "scikit-learn",
+        "description": "Классическое машинное обучение: классификация, регрессия, кластеризация и метрики.",
+        "category": "Machine Learning",
+        "docs_url": "https://scikit-learn.org"
+    },
+    {
+        "name": "seaborn",
+        "description": "Статистическая визуализация данных поверх Matplotlib с готовыми палитрами.",
+        "category": "Visualization",
+        "docs_url": "https://seaborn.pydata.org"
+    },
+    {
+        "name": "networkx",
+        "description": "Анализ графов и сетей: кратчайшие пути Дейкстры, центральность, клики.",
+        "category": "Algorithms & Graphs",
+        "docs_url": "https://networkx.org"
+    },
+    {
+        "name": "beautifulsoup4",
+        "description": "Быстрый парсинг HTML/XML документов и извлечение данных из веб-страниц.",
+        "category": "Web & Scraping",
+        "docs_url": "https://www.crummy.com/software/BeautifulSoup/"
+    },
+    {
+        "name": "httpx",
+        "description": "Современный sync/async HTTP-клиент с поддержкой HTTP/2 и строгой типизацией.",
+        "category": "Networking",
+        "docs_url": "https://www.python-httpx.org"
+    },
+    {
+        "name": "sympy",
+        "description": "Символьная математика: производные, интегралы, пределы и решение уравнений.",
+        "category": "Data & Math",
+        "docs_url": "https://www.sympy.org"
+    },
+    {
+        "name": "loguru",
+        "description": "Элегантное и структурированное логирование с цветным выводом без boilerplate.",
+        "category": "Utilities",
+        "docs_url": "https://loguru.readthedocs.io"
+    },
+    {
+        "name": "psutil",
+        "description": "Мониторинг ресурсов системы: загрузка CPU, использование памяти процессами и диск.",
+        "category": "System & OS",
+        "docs_url": "https://psutil.readthedocs.io"
+    },
+    {
         "name": "pytest",
         "description": "Промышленный стандарт для написания чистых и масштабируемых тестов.",
         "category": "Testing",
