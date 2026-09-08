@@ -1,0 +1,42 @@
+# Environments & Python
+venv/
+.venv/
+workspace_env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Node & Frontend
+node_modules/
+frontend/node_modules/
+frontend/dist/
+.pnpm-debug.log*
+
+# User workspace transient outputs
+backend/user_workspace/*
+!backend/user_workspace/.gitkeep
+!backend/user_workspace/samples
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
