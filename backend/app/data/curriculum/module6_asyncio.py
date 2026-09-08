@@ -5,13 +5,13 @@ Coroutines, Tasks, Event Loop, asyncio.gather, TaskGroup, and Semaphore concurre
 
 MODULE_6 = {
     "id": "module_6",
-    "title": "Модуль 6: Асинхронный Python (Asyncio)",
+    "title": "Модуль 8: Асинхронный Python (Asyncio)",
     "description": "Событийный цикл (Event Loop), корутины, конкурентный запуск задач, паттерны TaskGroup и регулирование нагрузки с asyncio.Semaphore.",
-    "order": 6,
+    "order": 8,
     "lessons": [
         {
             "id": "m6_l1_asyncio_concurrency_gather",
-            "title": "6.1. Конкурентное выполнение корутин: asyncio.gather и TaskGroup",
+            "title": "8.1. Конкурентное выполнение корутин: asyncio.gather и TaskGroup",
             "difficulty": "advanced",
             "estimated_minutes": 30,
             "theory_md": """# Асинхронность и конкурентность в Python
@@ -93,7 +93,7 @@ def test_parallel_timing():
         },
         {
             "id": "m6_l2_async_semaphore_rate_limiter",
-            "title": "6.2. Ограничение конкурентности: asyncio.Semaphore",
+            "title": "8.2. Ограничение конкурентности: asyncio.Semaphore",
             "difficulty": "advanced",
             "estimated_minutes": 30,
             "theory_md": """# Ограничение параллелизма: `asyncio.Semaphore`

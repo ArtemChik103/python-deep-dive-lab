@@ -4,13 +4,13 @@ Module 10: Production Engineering, Concurrency, and Performance Profiling
 
 MODULE_10 = {
     "id": "module_10",
-    "title": "Модуль 10: Продакшн Инженерия, GIL и Оптимизация",
+    "title": "Модуль 12: Продакшн Инженерия, GIL и Оптимизация",
     "description": "Global Interpreter Lock (GIL), ThreadPoolExecutor vs ProcessPoolExecutor, профилирование cProfile и оптимизация алгоритмов с O(N^2) до O(N).",
-    "order": 10,
+    "order": 12,
     "lessons": [
         {
             "id": "m10_l1_gil_threads_vs_processes",
-            "title": "10.1. Преодоление GIL: ThreadPoolExecutor vs ProcessPoolExecutor",
+            "title": "12.1. Преодоление GIL: ThreadPoolExecutor vs ProcessPoolExecutor",
             "difficulty": "expert",
             "estimated_minutes": 35,
             "theory_md": """# Global Interpreter Lock (GIL) и параллелизм
@@ -79,7 +79,7 @@ def test_parallel_batch():
         },
         {
             "id": "m10_l2_algorithmic_optimization_bench",
-            "title": "10.2. Алгоритмическая оптимизация: переход от O(N²) к O(N)",
+            "title": "12.2. Алгоритмическая оптимизация: переход от O(N²) к O(N)",
             "difficulty": "expert",
             "estimated_minutes": 35,
             "theory_md": """# Анализ сложности и профилирование

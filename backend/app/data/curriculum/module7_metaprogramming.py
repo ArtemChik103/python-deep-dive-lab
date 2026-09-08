@@ -4,13 +4,13 @@ Module 7: Metaprogramming, Descriptors, and Metaclasses
 
 MODULE_7 = {
     "id": "module_7",
-    "title": "Модуль 7: Метапрограммирование, Дескрипторы и Метаклассы",
+    "title": "Модуль 9: Метапрограммирование, Дескрипторы и Метаклассы",
     "description": "Протокол дескрипторов (__get__, __set__, __set_name__), разница между Data и Non-Data дескрипторами, магия метаклассов и __init_subclass__.",
-    "order": 7,
+    "order": 9,
     "lessons": [
         {
             "id": "m7_l1_descriptors_typed_field",
-            "title": "7.1. Протокол дескрипторов: создание валидатора полей TypedField",
+            "title": "9.1. Протокол дескрипторов: создание валидатора полей TypedField",
             "difficulty": "expert",
             "estimated_minutes": 35,
             "theory_md": """# Протокол дескрипторов в Python
@@ -145,7 +145,7 @@ def test_min_boundary():
         },
         {
             "id": "m7_l2_init_subclass_plugin_registry",
-            "title": "7.2. Авторегистрация через __init_subclass__ и метапрограммирование",
+            "title": "9.2. Авторегистрация через __init_subclass__ и метапрограммирование",
             "difficulty": "expert",
             "estimated_minutes": 30,
             "theory_md": """# Современное метапрограммирование: `__init_subclass__`

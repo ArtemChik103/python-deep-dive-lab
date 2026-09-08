@@ -4,13 +4,13 @@ Module 8: CPython Internals, Bytecode, Garbage Collection, and Weak References
 
 MODULE_8 = {
     "id": "module_8",
-    "title": "Модуль 8: Внутренности CPython, Байткод и Управление Памятью",
+    "title": "Модуль 10: Внутренности CPython, Байткод и Управление Памятью",
     "description": "Стековая машина CPython, опкоды dis, счетчик ссылок (refcount), циклический сборщик мусора gc и слабые ссылки weakref.",
-    "order": 8,
+    "order": 10,
     "lessons": [
         {
             "id": "m8_l1_cpython_bytecode_dis",
-            "title": "8.1. Дизассемблирование байткода CPython: модуль dis",
+            "title": "10.1. Дизассемблирование байткода CPython: модуль dis",
             "difficulty": "expert",
             "estimated_minutes": 35,
             "theory_md": """# Стековая виртуальная машина CPython и байткод
@@ -119,7 +119,7 @@ def test_global_bytecode():
         },
         {
             "id": "m8_l2_garbage_collection_weakref",
-            "title": "8.2. Reference Counting, циклический GC и weakref кэш",
+            "title": "10.2. Reference Counting, циклический GC и weakref кэш",
             "difficulty": "expert",
             "estimated_minutes": 35,
             "theory_md": """# Управление памятью: Refcount, Cyclic GC и `weakref`

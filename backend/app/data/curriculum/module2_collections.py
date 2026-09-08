@@ -5,13 +5,13 @@ Hash tables, hash collisions, Big-O complexity, collections.deque and Counter.
 
 MODULE_2 = {
     "id": "module_2",
-    "title": "Модуль 2: Коллекции и Внутреннее устройство Хеш-таблиц",
+    "title": "Модуль 4: Коллекции и Внутреннее устройство Хеш-таблиц",
     "description": "Как устроен dict в CPython (compact dict), разрешение коллизий открытой адресацией, контракт __hash__ и __eq__, и структуры модуля collections.",
-    "order": 2,
+    "order": 4,
     "lessons": [
         {
             "id": "m2_l1_dict_internals_hash_contract",
-            "title": "2.1. Контракт хеширования: __hash__, __eq__ и коллизии",
+            "title": "4.1. Контракт хеширования: __hash__, __eq__ и коллизии",
             "difficulty": "intermediate",
             "estimated_minutes": 25,
             "theory_md": """# Внутреннее устройство `dict` в CPython
@@ -125,7 +125,7 @@ def test_dict_usage():
         },
         {
             "id": "m2_l2_sliding_window_deque",
-            "title": "2.2. Сложность операций: deque vs list в скользящем окне",
+            "title": "4.2. Сложность операций: deque vs list в скользящем окне",
             "difficulty": "intermediate",
             "estimated_minutes": 25,
             "theory_md": """# Временная сложность `list` vs `collections.deque`

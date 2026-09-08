@@ -4,13 +4,13 @@ Module 5: Decorators, Context Managers, and Resource Cleanup
 
 MODULE_5 = {
     "id": "module_5",
-    "title": "Модуль 5: Декораторы, Метаданные и Контекстные менеджеры",
+    "title": "Модуль 7: Декораторы, Метаданные и Контекстные менеджеры",
     "description": "Параметризованные декораторы с сохранением сигнатур через functools.wraps, протокол контекстных менеджеров __enter__/__exit__ и подавление исключений.",
-    "order": 5,
+    "order": 7,
     "lessons": [
         {
             "id": "m5_l1_parameterized_decorators",
-            "title": "5.1. Параметризованные декораторы: retry с экспоненциальным backoff",
+            "title": "7.1. Параметризованные декораторы: retry с экспоненциальным backoff",
             "difficulty": "intermediate",
             "estimated_minutes": 30,
             "theory_md": """# Параметризованные декораторы и `functools.wraps`
@@ -133,7 +133,7 @@ def test_retries_exhausted():
         },
         {
             "id": "m5_l2_context_managers_suppress",
-            "title": "5.2. Протокол контекстного менеджера: __enter__, __exit__ и подавление ошибок",
+            "title": "7.2. Протокол контекстного менеджера: __enter__, __exit__ и подавление ошибок",
             "difficulty": "advanced",
             "estimated_minutes": 25,
             "theory_md": """# Протокол контекстного менеджера

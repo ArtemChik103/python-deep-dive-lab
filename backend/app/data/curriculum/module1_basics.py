@@ -5,13 +5,13 @@ From foundational variables to memory references, mutability, and closures.
 
 MODULE_1 = {
     "id": "module_1",
-    "title": "Модуль 1: Ядро Python и Модель Памяти",
+    "title": "Модуль 3: Ядро Python и Модель Памяти",
     "description": "Погружение в ссылочную модель Python, изменяемость объектов, id(), области видимости LEGB и замыкания.",
-    "order": 1,
+    "order": 3,
     "lessons": [
         {
             "id": "m1_l1_references_mutability",
-            "title": "1.1. Ссылочная модель: id, is vs ==, изменяемость",
+            "title": "3.1. Ссылочная модель: id, is vs ==, изменяемость",
             "difficulty": "beginner",
             "estimated_minutes": 15,
             "theory_md": """# Ссылочная модель Python: Объекты и Ссылки
@@ -119,7 +119,7 @@ def test_copy_mode():
         },
         {
             "id": "m1_l2_scopes_legb_closures",
-            "title": "1.2. Области видимости LEGB, nonlocal и замыкания",
+            "title": "3.2. Области видимости LEGB, nonlocal и замыкания",
             "difficulty": "beginner",
             "estimated_minutes": 20,
             "theory_md": """# Области видимости (LEGB) и Замыкания (Closures)

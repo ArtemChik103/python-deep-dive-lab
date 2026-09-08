@@ -4,13 +4,13 @@ Module 3: Advanced OOP, C3 MRO, Slots, and Dunder Protocols
 
 MODULE_3 = {
     "id": "module_3",
-    "title": "Модуль 3: Глубокое ООП, Dunder-протоколы и MRO",
+    "title": "Модуль 5: Глубокое ООП, Dunder-протоколы и MRO",
     "description": "Магические методы, линеаризация C3 MRO при множественном наследовании, кооперативный super() и __slots__ для экономии памяти.",
-    "order": 3,
+    "order": 5,
     "lessons": [
         {
             "id": "m3_l1_mro_cooperative_super",
-            "title": "3.1. Линеаризация C3 MRO и кооперативный super()",
+            "title": "5.1. Линеаризация C3 MRO и кооперативный super()",
             "difficulty": "intermediate",
             "estimated_minutes": 30,
             "theory_md": """# Алгоритм C3 MRO и кооперативный `super()`
@@ -132,7 +132,7 @@ def test_json_serialization():
         },
         {
             "id": "m3_l2_slots_memory_optimization",
-            "title": "3.2. __slots__: устранение __dict__ и профилирование памяти",
+            "title": "5.2. __slots__: устранение __dict__ и профилирование памяти",
             "difficulty": "advanced",
             "estimated_minutes": 25,
             "theory_md": """# Внутреннее устройство `__slots__`

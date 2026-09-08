@@ -5,13 +5,13 @@ The iterator protocol, lazy evaluation, yield from, and bidirectional coroutines
 
 MODULE_4 = {
     "id": "module_4",
-    "title": "Модуль 4: Итераторы, Генераторы и Потоковая обработка",
+    "title": "Модуль 6: Итераторы, Генераторы и Потоковая обработка",
     "description": "Протокол итератора (__iter__ и __next__), генераторы с yield, делегирование yield from и корутины генераторов со связью через .send().",
-    "order": 4,
+    "order": 6,
     "lessons": [
         {
             "id": "m4_l1_custom_iterator_protocol",
-            "title": "4.1. Протокол итератора: __iter__, __next__ и ленивый ChunkIterator",
+            "title": "6.1. Протокол итератора: __iter__, __next__ и ленивый ChunkIterator",
             "difficulty": "intermediate",
             "estimated_minutes": 25,
             "theory_md": """# Протокол итератора (Iterator Protocol)
@@ -125,7 +125,7 @@ def test_lazy_stream():
         },
         {
             "id": "m4_l2_yield_from_coroutines",
-            "title": "4.2. yield from и двусторонняя связь через .send()",
+            "title": "6.2. yield from и двусторонняя связь через .send()",
             "difficulty": "advanced",
             "estimated_minutes": 30,
             "theory_md": """# Конструкция `yield from` и корутины генераторов

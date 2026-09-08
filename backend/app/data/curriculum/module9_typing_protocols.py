@@ -4,13 +4,13 @@ Module 9: Modern Static Typing, Protocols, and Generics
 
 MODULE_9 = {
     "id": "module_9",
-    "title": "Модуль 9: Статическая Типизация, Protocol и Generics",
+    "title": "Модуль 11: Статическая Типизация, Protocol и Generics",
     "description": "Структурная подтипизация с typing.Protocol (статический duck-typing), обобщенные типы Generic[T], TypeVar и монада Result[T, E].",
-    "order": 9,
+    "order": 11,
     "lessons": [
         {
             "id": "m9_l1_structural_typing_protocol",
-            "title": "9.1. Структурная подтипизация: Protocol и runtime_checkable",
+            "title": "11.1. Структурная подтипизация: Protocol и runtime_checkable",
             "difficulty": "advanced",
             "estimated_minutes": 25,
             "theory_md": """# Структурная подтипизация: `typing.Protocol`
@@ -107,7 +107,7 @@ def test_structural_matching():
         },
         {
             "id": "m9_l2_generic_result_monad",
-            "title": "9.2. Дженерики и Монада Result[T, E] для безопасной обработки ошибок",
+            "title": "11.2. Дженерики и Монада Result[T, E] для безопасной обработки ошибок",
             "difficulty": "advanced",
             "estimated_minutes": 30,
             "theory_md": """# Дженерики (Generics) и паттерн Result[T, E]
