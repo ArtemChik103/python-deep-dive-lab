@@ -40,3 +40,8 @@ backend/user_workspace/*
 .DS_Store
 Thumbs.db
 *.log
+test-results/
+playwright-report/
+frontend/test-results/
+frontend/playwright-report/
+
